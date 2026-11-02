@@ -50,10 +50,14 @@ test('sitemap and robots are built', async () => {
   expect(readFileSync('dist/robots.txt', 'utf8')).toContain('Sitemap:');
 });
 
-test('privacy page explains cookies and analytics', async ({ page }) => {
+test('privacy page explains cookies, analytics and hosting', async ({ page }) => {
   await page.goto('/privacy');
-  await expect(page.locator('main')).toContainText('does not use cookies');
-  await expect(page.locator('main')).toContainText('Cloudflare Web Analytics');
+  const main = page.locator('main');
+  await expect(main).toContainText('does not use cookies');
+  await expect(main).toContainText('does not use analytics');
+  await expect(main).toContainText('GitHub Pages');
+  await expect(main).not.toContainText('Cloudflare');
+  await expect(main.locator('a[href*="github-general-privacy-statement"]')).toHaveAttribute('target', '_blank');
 });
 
 test('404 is styled and links home', async ({ page, isMobile }) => {
