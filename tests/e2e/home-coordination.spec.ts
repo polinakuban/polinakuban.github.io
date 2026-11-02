@@ -9,19 +9,19 @@ test.describe('desktop', () => {
     await expect(page.locator('header .role')).toHaveText('Creative Project Coordination');
     await expect(page.locator('.statement')).toContainText('Creative projects,');
     await expect(page.locator('.statement em')).toHaveText('delivered with care.');
-    await expect(page.locator('.info')).toContainText('Projects, 05');
+    await expect(page.locator('.info')).toContainText('Projects, 03');
     await expect(page.locator('.info [data-clock]')).toHaveText(/^\d{2}:\d{2}$/);
   });
 
   test('rows in order', async ({ page }) => {
     await page.goto('/coordination');
     const rows = page.locator('a[data-project-row]');
-    await expect(rows).toHaveCount(5);
-    await expect(rows.locator('.n')).toHaveText(['01', '02', '03', '04', '05']);
-    await expect(rows.first().locator('.t')).toHaveText('Brand photo shoot');
-    await expect(rows.first()).toHaveAttribute('href', '/coordination/brand-photo-shoot');
-    await expect(rows.nth(1).locator('.ty')).toHaveText('Event');
-    await expect(rows.nth(1).locator('.sc')).toHaveText('6 vendors, 150 guests');
+    await expect(rows).toHaveCount(3);
+    await expect(rows.locator('.n')).toHaveText(['01', '02', '03']);
+    await expect(rows.first().locator('.t')).toHaveText('Art Connections');
+    await expect(rows.first()).toHaveAttribute('href', '/coordination/art-connections');
+    await expect(rows.nth(1).locator('.ty')).toHaveText('Workshop');
+    await expect(rows.nth(1).locator('.sc')).toHaveText('Participation & collective knowledge');
   });
 
   test('peek follows cursor', async ({ page }) => {
@@ -36,7 +36,7 @@ test.describe('desktop', () => {
     const box = (await peek.boundingBox())!;
     expect(box.x).toBeGreaterThan(x);
     expect(Math.abs(box.y + box.height / 2 - y)).toBeLessThan(4);
-    expect(await peek.evaluate((e) => getComputedStyle(e).backgroundColor)).toBe('rgb(47, 74, 91)');
+    expect(await peek.evaluate((e) => getComputedStyle(e).backgroundColor)).toBe('rgb(90, 78, 60)');
     await page.mouse.move(x, 60, { steps: 4 });
     await expect(peek).toBeHidden();
   });
@@ -46,7 +46,7 @@ test.describe('desktop', () => {
     await page.locator('a[data-project-row]').nth(1).hover();
     const img = page.locator('.peek img');
     await expect(img).toBeVisible();
-    await expect(img).toHaveAttribute('src', /cover/);
+    await expect(img).toHaveAttribute('src', /clay-bucket/);
   });
 
   test('peek of a project without a cover shows only its colour', async ({ page }) => {
@@ -90,9 +90,9 @@ test('mobile shows inline thumbnails and no peek', async ({ page, isMobile }) =>
   test.skip(!isMobile, 'mobile only');
   await page.goto('/coordination');
   const thumbs = page.locator('a[data-project-row] .thumb');
-  await expect(thumbs).toHaveCount(5);
+  await expect(thumbs).toHaveCount(3);
   for (const t of await thumbs.all()) await expect(t).toBeVisible();
-  await expect(thumbs.locator('img')).toHaveCount(5);
+  await expect(thumbs.locator('img')).toHaveCount(3);
   await page.locator('a[data-project-row]').first().locator('.t').tap({ trial: true });
   await expect(page.locator('.peek')).toBeHidden();
 });

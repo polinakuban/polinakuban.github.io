@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { existsSync, readFileSync } from 'node:fs';
 
-const routes = ['/', '/coordination', '/work/zelenka', '/coordination/product-launch-event', '/about', '/archive', '/privacy'];
+const routes = ['/', '/coordination', '/work/zelenka', '/coordination/living-tradition', '/about', '/archive', '/privacy'];
 
 test('mode switch fades to the dark palette and keeps the spine', async ({ page, isMobile }) => {
   test.skip(isMobile, 'spine is desktop only');

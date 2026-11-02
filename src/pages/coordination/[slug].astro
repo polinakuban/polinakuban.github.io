@@ -21,7 +21,7 @@ const PLACEHOLDER_PHOTOS = 3;
 ---
 <BaseLayout
   title={`${d.title} — Polina Kuban`}
-  description={d.challenge.slice(0, 155)}
+  description={d.focus.slice(0, 155)}
   mode="coordination"
   page="project"
   header={{ variant: 'back', backHref: '/coordination', backLabel: 'All projects', center: position(projects, entry.id).label }}
@@ -31,29 +31,43 @@ const PLACEHOLDER_PHOTOS = 3;
     <h1>{d.title}</h1>
     <dl class="meta grid3">
       <div data-col="1"><dt class="label">Role</dt><dd>{d.role}</dd></div>
-      <div data-col="2"><dt class="label">Client</dt><dd>{d.client}</dd></div>
-      <div data-col="3" class="pair">
-        <div><dt class="label">Team</dt><dd>{d.team}</dd></div>
-        <div><dt class="label">Timeline</dt><dd>{d.timeline}</dd></div>
-      </div>
+      {d.client && <div data-col="2"><dt class="label">Client</dt><dd>{d.client}</dd></div>}
+      {(d.team || d.timeline) && (
+        <div data-col="3" class="pair">
+          {d.team && <div><dt class="label">Team</dt><dd>{d.team}</dd></div>}
+          {d.timeline && <div><dt class="label">Timeline</dt><dd>{d.timeline}</dd></div>}
+        </div>
+      )}
     </dl>
     <section class="sec grid3">
-      <h2 class="lbl label">Challenge</h2>
-      <p class="body span23">{d.challenge}</p>
+      <h2 class="lbl label">Focus</h2>
+      <p class="body span23">{d.focus}</p>
     </section>
-    <section class="sec grid3">
-      <h2 class="lbl label">What I did</h2>
-      <ul class="body span23 did">{d.whatIDid.map((item) => <li>{item}</li>)}</ul>
-    </section>
-    <section class="sec grid3">
-      <h2 class="lbl label">Result</h2>
-      <ul class="body span23 results">
-        {d.results.map((r) => <li><b>{r.value}</b><span>{r.label}</span></li>)}
-      </ul>
-    </section>
+    {d.whatIDid.length > 0 && (
+      <section class="sec grid3">
+        <h2 class="lbl label">What I did</h2>
+        <ul class="body span23 did">{d.whatIDid.map((item) => <li>{item}</li>)}</ul>
+      </section>
+    )}
+    {d.results.length > 0 && (
+      <section class="sec grid3">
+        <h2 class="lbl label">Result</h2>
+        <ul class="body span23 results">
+          {d.results.map((r) => <li><b>{r.value}</b><span>{r.label}</span></li>)}
+        </ul>
+      </section>
+    )}
+    {d.keyLearning && (
+      <section class="sec grid3">
+        <h2 class="lbl label">Key learning</h2>
+        <p class="body span23">{d.keyLearning}</p>
+      </section>
+    )}
     <div class="photos">
       {d.photos.length
-        ? d.photos.map((p) => <Image src={p.src} alt={p.alt} widths={[600, 1000]} sizes="(max-width: 767px) 92vw, 40vw" />)
+        ? d.photos.map((p) => (
+            <Image src={p.src} alt={p.alt} widths={[600, 1000]} sizes="(max-width: 767px) 92vw, 40vw" style={`object-position:${p.position}`} />
+          ))
         : Array.from({ length: PLACEHOLDER_PHOTOS }, () => <div class="block" style={`background:${d.color}`} />)}
     </div>
     <div class="next">

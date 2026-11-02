@@ -4,7 +4,7 @@ const routes = [
   { path: '/', mode: 'design' },
   { path: '/coordination', mode: 'coordination' },
   { path: '/work/zelenka', mode: 'design' },
-  { path: '/coordination/product-launch-event', mode: 'coordination' },
+  { path: '/coordination/living-tradition', mode: 'coordination' },
   { path: '/about', mode: 'design' },
   { path: '/archive', mode: 'design' },
   { path: '/privacy', mode: 'design' },
@@ -108,9 +108,9 @@ test('case and project headers show back link and counter', async ({ page }) => 
   await expect(page.locator('header .back')).toHaveAttribute('href', '/');
   await expect(page.locator('header .back')).toContainText('All works');
   await expect(page.locator('header .center')).toHaveText('02 / 04');
-  await page.goto('/coordination/product-launch-event');
+  await page.goto('/coordination/barka-workshop');
   await expect(page.locator('header .back')).toHaveAttribute('href', '/coordination');
-  await expect(page.locator('header .center')).toHaveText('02 / 05');
+  await expect(page.locator('header .center')).toHaveText('03 / 03');
   await page.goto('/archive');
   await expect(page.locator('header .center')).toHaveText('Archive');
 });
@@ -126,7 +126,7 @@ test('spine fits the viewport height', async ({ page, isMobile }) => {
 
 test('spine links to the home of the current mode', async ({ page, isMobile }) => {
   test.skip(isMobile, 'desktop only');
-  await page.goto('/coordination/brand-photo-shoot');
+  await page.goto('/coordination/barka-workshop');
   await expect(page.locator('.spine')).toHaveAttribute('href', '/coordination');
   await page.goto('/about');
   await expect(page.locator('.spine')).toHaveAttribute('href', '/');

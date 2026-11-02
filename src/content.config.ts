@@ -31,15 +31,20 @@ const projects = defineCollection({
       type: z.string(),
       scopeShort: z.string(),
       role: z.string(),
-      client: z.string(),
-      team: z.string(),
-      timeline: z.string(),
-      challenge: z.string(),
-      whatIDid: z.array(z.string()),
-      results: z.array(z.object({ value: z.string(), label: z.string() })).max(3),
+      // Everything below `focus` is optional: the project page leaves out what isn't filled in
+      client: z.string().optional(),
+      team: z.string().optional(),
+      timeline: z.string().optional(),
+      focus: z.string(),
+      whatIDid: z.array(z.string()).default([]),
+      results: z.array(z.object({ value: z.string(), label: z.string() })).max(3).default([]),
+      keyLearning: z.string().optional(),
       cover: image().optional(),
       color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
-      photos: z.array(z.object({ src: image(), alt: z.string() })).max(3).default([]),
+      photos: z
+        .array(z.object({ src: image(), alt: z.string(), position: z.string().default('50% 50%') }))
+        .max(3)
+        .default([]),
       todo: z.string().optional(),
     }),
 });
