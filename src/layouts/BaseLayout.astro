@@ -1,0 +1,74 @@
+---
+import { ClientRouter, fade } from 'astro:transitions';
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import '@fontsource/inter-tight/400.css';
+import '@fontsource/inter-tight/500.css';
+import '@fontsource/instrument-serif/400.css';
+import '@fontsource/instrument-serif/400-italic.css';
+import '../styles/tokens.css';
+import '../styles/base.css';
+import Spine from '../components/Spine.astro';
+import Header, { type Props as HeaderProps } from '../components/Header.astro';
+import ContactPanel from '../components/ContactPanel.astro';
+import MobileContact from '../components/MobileContact.astro';
+import ContactCursor from '../components/ContactCursor.astro';
+import { getSettings } from '../lib/site';
+import type { Mode, PageKind } from '../lib/types';
+
+interface Props {
+  title: string;
+  description?: string;
+  mode: Mode;
+  page: PageKind;
+  header: HeaderProps;
+  ogImage?: ImageMetadata;
+  cursor?: boolean;
+}
+
+const DEFAULT_DESCRIPTION = 'Polina Kuban — graphic designer and creative project coordinator based in Budapest.';
+const { title, description = DEFAULT_DESCRIPTION, mode, page, header, ogImage, cursor = false } = Astro.props;
+const settings = await getSettings();
+const og = await getImage({ src: ogImage ?? settings.archiveCover, width: 1200, format: 'jpg' });
+const ogUrl = new URL(og.src, Astro.site).href;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+---
+<!doctype html>
+<html lang="en" data-mode={mode} data-page={page}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <ClientRouter />
+  </head>
+  <body>
+    <Spine mode={mode} page={page} />
+    <div class="page">
+      <Header {...header} />
+      <main transition:animate={fade({ duration: '0.4s' })}>
+        <slot />
+      </main>
+    </div>
+    <!-- main is a view-transition stacking context, so fixed overlays must live outside it -->
+    <slot name="overlay" />
+    <MobileContact />
+    {cursor && <ContactCursor />}
+    <ContactPanel />
+  </body>
+</html>
+
+<style>
+  .page { margin-left: var(--spine-w); min-height: 100vh; }
+  @media (max-width: 767px) {
+    .page { margin-left: 0; }
+  }
+</style>

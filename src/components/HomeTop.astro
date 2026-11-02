@@ -1,0 +1,42 @@
+---
+import LiveClock from './LiveClock.astro';
+
+interface Props {
+  statement: string;
+  italic: string;
+  count: string;
+  clockLabel: string;
+}
+
+const { statement, italic, count, clockLabel } = Astro.props;
+---
+<div class="top">
+  <p class="statement">{statement}<br /><em>{italic}</em></p>
+  <p class="info">
+    <span class="mute">{count}</span><br />
+    {clockLabel}&nbsp;&nbsp;<LiveClock />
+  </p>
+</div>
+
+<style>
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 4vw;
+    padding: 1.6vw 3vw 2vw 2.5vw;
+  }
+  .statement {
+    font-family: var(--serif);
+    font-size: 3.7vw;
+    line-height: 1;
+    letter-spacing: -.01em;
+  }
+  .info { font-size: clamp(13px, 1.05vw, 17px); text-align: right; line-height: 1.5; white-space: nowrap; }
+
+  @media (max-width: 767px) {
+    .top { flex-direction: column; padding: 2vw 4vw 0; gap: 3vw; }
+    .statement { font-size: 8.5vw; }
+    .info { text-align: left; font-size: 14px; }
+  }
+</style>

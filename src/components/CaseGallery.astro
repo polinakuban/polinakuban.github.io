@@ -1,0 +1,117 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import type { Link } from '../lib/collections';
+
+interface Props {
+  entry: CollectionEntry<'work'>;
+  next: Link;
+}
+
+const { entry, next } = Astro.props;
+const d = entry.data;
+// The cover opens the gallery so the strip image can grow into it; it is not repeated later.
+const coverAlt = d.gallery.find((g) => g.src.src === d.cover.src)?.alt ?? d.title;
+const images = [{ src: d.cover, alt: coverAlt }, ...d.gallery.filter((g) => g.src.src !== d.cover.src)];
+const meta = [
+  ['Years', d.years],
+  ['Role', d.role],
+  ['Client', d.client],
+  ['Scope', d.scope],
+].filter(([, v]) => v);
+---
+<div class="case">
+  <aside class="info">
+    <h1>{d.title}</h1>
+    <dl class="meta">
+      {meta.map(([k, v]) => (
+        <div><dt>{k}</dt><dd>{v}</dd></div>
+      ))}
+    </dl>
+    <p class="desc">{d.description}</p>
+  </aside>
+  <div class="viewer">
+    <div class="track" data-track>
+      {images.map((img, i) => (
+        <figure transition:name={i === 0 ? `case-${entry.id}` : undefined}>
+          <Image
+            src={img.src}
+            alt={img.alt}
+            widths={[640, 1000, 1600]}
+            sizes="(max-width: 767px) 88vw, 70vw"
+            loading={i < 2 ? 'eager' : 'lazy'}
+          />
+        </figure>
+      ))}
+      <div class="next">
+        <span class="mute">{next.href === '/archive' ? 'Next' : 'Next case'}</span>
+        <a href={next.href}>{next.title} →</a>
+      </div>
+    </div>
+    <span class="hint mute" data-hint>Scroll →</span>
+    <span class="progress" data-progress>01 / {String(images.length).padStart(2, '0')}</span>
+  </div>
+</div>
+<script>
+  import '../scripts/gallery';
+</script>
+
+<style>
+  .case { display: flex; height: 100%; }
+  .info {
+    flex: 0 0 25%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.6vw;
+    padding: 1.4vw 2.5vw 2vw;
+    border-right: 1px solid var(--line);
+    overflow-y: auto;
+  }
+  h1 { font-family: var(--serif); font-weight: 400; font-size: 5.4vw; line-height: .9; letter-spacing: -.01em; overflow-wrap: anywhere; hyphens: auto; }
+  .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2vw 1.5vw; margin: 0; font-size: clamp(13px, 1.05vw, 17px); }
+  dt { color: var(--mute); font-size: .85em; margin-bottom: .2em; }
+  dd { margin: 0; }
+  .desc { font-size: clamp(14px, 1.1vw, 18px); line-height: 1.5; }
+
+  .viewer { position: relative; flex: 1; min-width: 0; }
+  .track {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 1.2vw;
+    padding: 0 3vw 0 2vw;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+  }
+  .track::-webkit-scrollbar { display: none; }
+  figure { flex: 0 0 auto; height: min(62vh, calc(100% - 8vw)); margin: 0; }
+  figure :global(img) { height: 100%; width: auto; max-width: 140vh; object-fit: cover; }
+  .next { flex: 0 0 auto; display: flex; flex-direction: column; gap: .6vw; padding: 0 4vw 0 2vw; font-size: clamp(13px, 1vw, 16px); }
+  .next a { font-family: var(--serif); font-size: 4.4vw; line-height: 1; white-space: nowrap; }
+  .hint, .progress { position: absolute; bottom: 2vw; font-size: clamp(12px, .95vw, 16px); }
+  .hint { left: 2vw; transition: opacity .5s; }
+  .hint:global(.is-gone) { opacity: 0; }
+  .progress { right: 3vw; }
+
+  @media (min-width: 768px) {
+    :global(html[data-page='work'] .page) { height: 100vh; display: flex; flex-direction: column; }
+    :global(html[data-page='work'] main) { flex: 1; min-height: 0; }
+  }
+
+  @media (max-width: 767px) {
+    .case { display: block; height: auto; padding-bottom: 26vw; }
+    .info { border: 0; gap: 4vw; padding: 2vw 4vw 6vw; }
+    h1 { font-size: 15vw; }
+    .meta { gap: 3vw; font-size: 14px; }
+    .desc { font-size: 15px; }
+    .track { height: auto; gap: 2.5vw; padding: 0 4vw; scroll-snap-type: x mandatory; scroll-padding-inline: 4vw; }
+    /* same width for every card; the height follows the image so wide work is never cut in half */
+    figure { width: 80vw; height: auto; scroll-snap-align: start; }
+    figure :global(img) { width: 100%; height: auto; max-width: none; max-height: 100vw; }
+    .next a { font-size: 9vw; }
+    .hint, .progress { position: static; display: inline-block; margin: 3vw 4vw 0; }
+    .progress { float: right; }
+  }
+</style>

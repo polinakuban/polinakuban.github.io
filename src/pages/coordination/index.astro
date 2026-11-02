@@ -1,0 +1,29 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import HomeTop from '../../components/HomeTop.astro';
+import ProjectList from '../../components/ProjectList.astro';
+import ProjectPeek from '../../components/ProjectPeek.astro';
+import { sortByOrder } from '../../lib/collections';
+import { getSettings } from '../../lib/site';
+
+const s = await getSettings();
+const projects = sortByOrder(await getCollection('projects'));
+---
+<BaseLayout
+  title="Polina Kuban — Creative Project Coordination"
+  description="Polina Kuban coordinates creative projects: shoots, events, print production and exhibitions."
+  mode="coordination"
+  page="home"
+  header={{ variant: 'nav', role: s.coordinationRole, active: 'coordination' }}
+  cursor
+>
+  <HomeTop
+    statement={s.coordinationStatement}
+    italic={s.coordinationStatementItalic}
+    count={`Projects, ${String(projects.length).padStart(2, '0')}`}
+    clockLabel={s.clockLabel}
+  />
+  <ProjectList projects={projects} />
+  <ProjectPeek slot="overlay" />
+</BaseLayout>

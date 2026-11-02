@@ -1,0 +1,72 @@
+---
+import { Image, getImage } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  projects: CollectionEntry<'projects'>[];
+}
+
+const { projects } = Astro.props;
+const rows = await Promise.all(
+  projects.map(async (p, i) => ({
+    p,
+    num: String(i + 1).padStart(2, '0'),
+    peekSrc: p.data.cover ? (await getImage({ src: p.data.cover, width: 600 })).src : undefined,
+  })),
+);
+---
+<div class="list" data-project-list>
+  {rows.map(({ p, num, peekSrc }) => (
+    <a
+      data-project-row
+      href={`/coordination/${p.id}`}
+      data-peek-color={p.data.color}
+      data-peek-src={peekSrc}
+      class="row"
+    >
+      <span class="n">{num}</span>
+      <span class="thumb" style={`background:${p.data.color}`}>
+        {p.data.cover && <Image src={p.data.cover} alt="" width={240} />}
+      </span>
+      <span class="t">{p.data.title}</span>
+      <span class="ty">{p.data.type}</span>
+      <span class="sc">{p.data.scopeShort}</span>
+    </a>
+  ))}
+</div>
+
+<style>
+  .list { padding: 2vw 3vw 4vw 2.5vw; font-size: clamp(14px, 1.15vw, 19px); }
+  .row {
+    display: grid;
+    grid-template-columns: 5vw minmax(0, 1fr) 18vw 22vw;
+    align-items: baseline;
+    padding: .95vw 0;
+    border-top: 1px solid var(--line);
+    transition: padding-left .35s var(--ease), color .3s;
+  }
+  .row:last-child { border-bottom: 1px solid var(--line); }
+  .n, .ty, .sc { color: var(--mute); }
+  .t, .ty, .sc { white-space: nowrap; text-overflow: ellipsis; overflow: hidden; padding-right: 1vw; }
+  .thumb { display: none; }
+  .row:hover { padding-left: 1.2vw; }
+  .list:has(.row:hover) .row:not(:hover) { color: var(--mute); }
+
+  @media (max-width: 767px) {
+    .list { padding: 6vw 4vw 28vw; font-size: 16px; }
+    .row {
+      grid-template-columns: 22vw minmax(0, 1fr);
+      grid-template-areas: 'thumb t' 'thumb meta';
+      column-gap: 4vw;
+      align-items: start;
+      padding: 3.5vw 0;
+    }
+    .row:hover { padding-left: 0; }
+    .n { display: none; }
+    .thumb { display: block; grid-area: thumb; aspect-ratio: 4 / 3; overflow: hidden; }
+    .thumb :global(img) { width: 100%; height: 100%; object-fit: cover; }
+    .t { grid-area: t; white-space: normal; }
+    .ty { grid-area: meta; font-size: 13px; }
+    .sc { display: none; }
+  }
+</style>

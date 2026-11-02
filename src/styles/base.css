@@ -1,0 +1,47 @@
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color .7s ease, color .7s ease;
+}
+
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spacing: -.02em; }
+h1, h2, h3, h4, p, ul { margin: 0; }
+
+/* currentColor keeps the ring visible on inverted surfaces (contact panel, lightbox) */
+:focus-visible { outline: 1px solid currentColor; outline-offset: 3px; }
+
+/* Switching between Design and Coordination crossfades the whole palette (spec §4.7) */
+::view-transition-old(root),
+::view-transition-new(root) { animation-duration: .7s; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Three-column grid shared by text pages (spec §4.3): every block snaps to the same three lines */
+.grid3 { display: grid; grid-template-columns: 22% minmax(0, 1fr) minmax(0, 1fr); column-gap: 3%; }
+.span23 { grid-column: 2 / 4; }
+.label { color: var(--mute); font-size: clamp(12px, .95vw, 16px); font-weight: 400; }
+
+@media (max-width: 767px) {
+  .grid3 { grid-template-columns: minmax(0, 1fr); row-gap: 2vw; }
+  .span23 { grid-column: auto; }
+}

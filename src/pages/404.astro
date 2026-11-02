@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Page not found — Polina Kuban"
+  description="This page does not exist. Polina Kuban — graphic designer and creative project coordinator in Budapest."
+  mode="design"
+  page="404"
+  header={{ variant: 'back', backHref: '/', backLabel: 'Home', center: '404' }}
+>
+  <section class="notfound">
+    <h1>Page not found</h1>
+    <p class="mute">The page you are looking for has moved or never existed.</p>
+    <a href="/">Back to selected works →</a>
+  </section>
+</BaseLayout>
+
+<style>
+  .notfound { display: flex; flex-direction: column; gap: 1.6vw; padding: 6vw 3vw 6vw 2.5vw; font-size: clamp(15px, 1.35vw, 22px); }
+  h1 { font-family: var(--serif); font-weight: 400; font-size: 9vw; line-height: .9; }
+  a { font-family: var(--serif); font-size: 3.4vw; line-height: 1; }
+  @media (max-width: 767px) {
+    .notfound { gap: 5vw; padding: 10vw 4vw 28vw; }
+    h1 { font-size: 16vw; }
+    a { font-size: 8vw; }
+  }
+</style>

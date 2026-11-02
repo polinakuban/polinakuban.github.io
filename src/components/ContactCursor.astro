@@ -1,0 +1,65 @@
+<div class="contact-cursor" aria-hidden="true">
+  <span class="in"><span class="lbl">Contact me</span></span>
+</div>
+<script>
+  import '../scripts/cursor';
+</script>
+
+<style>
+  .contact-cursor {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    z-index: 45;
+    pointer-events: none;
+  }
+  .in {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 7.6em;
+    height: 2.2em;
+    font-size: clamp(13px, 1.05vw, 17px);
+    white-space: nowrap;
+    overflow: hidden;
+    border: 1px solid var(--fg);
+    border-radius: 999px;
+    background: var(--bg);
+    color: var(--fg);
+    transform: translate(-50%, -50%) scale(0);
+    transition:
+      transform .4s cubic-bezier(.2, .9, .25, 1.15),
+      width .45s var(--ease),
+      height .45s var(--ease),
+      background-color .35s,
+      backdrop-filter .3s;
+  }
+  .lbl { transition: opacity .2s; }
+
+  :global(html.cursor-contact),
+  :global(html.cursor-contact *),
+  :global(html.cursor-lens),
+  :global(html.cursor-lens *) { cursor: none !important; }
+
+  :global(html.cursor-contact) .in,
+  :global(html.cursor-lens) .in { transform: translate(-50%, -50%) scale(1); }
+  :global(html.cursor-contact.cursor-press) .in { transform: translate(-50%, -50%) scale(.92); }
+
+  :global(html.cursor-lens) .in {
+    width: 5.5vw;
+    height: 5.5vw;
+    background: transparent;
+    -webkit-backdrop-filter: grayscale(1) contrast(1.1);
+    backdrop-filter: grayscale(1) contrast(1.1);
+  }
+  :global(html.cursor-lens) .lbl { opacity: 0; }
+
+  @media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+    .contact-cursor { display: none; }
+  }
+</style>

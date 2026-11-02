@@ -1,0 +1,88 @@
+---
+import { Image } from 'astro:assets';
+import { getEntry } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getSettings } from '../lib/site';
+
+const s = await getSettings();
+const about = await getEntry('about', 'about');
+if (!about) throw new Error('src/content/site/about.yaml is missing');
+const a = about.data;
+---
+<BaseLayout
+  title="About — Polina Kuban"
+  description="Polina Kuban is a graphic designer and creative project coordinator based in Budapest."
+  mode="design"
+  page="about"
+  header={{ variant: 'nav', role: s.aboutRole, active: 'about' }}
+  ogImage={a.portrait}
+>
+  <article class="about">
+    <div class="grid3 top">
+      <div class="portrait">
+        <Image src={a.portrait} alt={a.portraitAlt} widths={[400, 800]} sizes="(max-width: 767px) 60vw, 22vw" loading="eager" />
+      </div>
+      <h1 class="about-statement span23">{a.statement} <em>{a.statementItalic}</em></h1>
+    </div>
+
+    <section class="grid3 sec">
+      <h2 class="sec-label label">About</h2>
+      <p class="bio span23">{a.bio}</p>
+    </section>
+
+    <section class="grid3 sec lists">
+      <div data-col="designer"><h2 class="label">As a designer</h2><ul>{a.designer.map((x) => <li>{x}</li>)}</ul></div>
+      <div data-col="coordinator"><h2 class="label">As a coordinator</h2><ul>{a.coordinator.map((x) => <li>{x}</li>)}</ul></div>
+      <div data-col="tools">
+        <h2 class="label">Tools</h2>
+        <ul>{a.tools.map((x) => <li>{x}</li>)}</ul>
+        <p class="mute langs">Languages: {a.languages.join(', ')}</p>
+      </div>
+    </section>
+
+    <section class="sec exp">
+      <h2 class="sec-label label">Experience</h2>
+      {a.experience.map((e) => (
+        <div class="grid3 row">
+          <span class="years mute">{e.years}</span>
+          <span class="org">{e.org}</span>
+          <span class="role mute">{e.role}</span>
+        </div>
+      ))}
+    </section>
+
+    <div class="grid3">
+      <a class="cv" href={a.cv} download>Download CV (PDF) ↓</a>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .about { padding: 1.5vw 3vw 6vw 2.5vw; font-size: clamp(15px, 1.4vw, 22px); line-height: 1.5; }
+  .top { align-items: end; margin: 1vw 0 3.5vw; }
+  .portrait { aspect-ratio: 190 / 336; overflow: hidden; }
+  .portrait :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .about-statement { font-family: var(--serif); font-weight: 400; font-size: 4.2vw; line-height: 1; letter-spacing: -.01em; }
+  .sec { padding: 1.4vw 0 3vw; border-top: 1px solid var(--line); }
+  .sec-label { padding-top: .3em; }
+  .lists { font-size: clamp(14px, 1.2vw, 19px); line-height: 1.75; }
+  .lists .label { display: block; margin-bottom: .5em; line-height: 1.4; }
+  ul { list-style: none; padding: 0; }
+  .langs { margin-top: .2em; }
+  .exp .sec-label { margin-bottom: .6vw; }
+  .row { padding: .9vw 0; border-top: 1px solid var(--line); font-size: clamp(14px, 1.2vw, 19px); }
+  .exp .row:first-of-type { border-top: 0; }
+  .cv { grid-column: 2; justify-self: start; border: 1px solid var(--fg); border-radius: 999px; padding: .4em 1.3em; font-size: clamp(13px, 1.1vw, 18px); transition: background-color .3s, color .3s; }
+  .cv:hover { background: var(--fg); color: var(--bg); }
+
+  @media (max-width: 767px) {
+    .about { padding: 2vw 4vw 28vw; font-size: 16px; }
+    .top { gap: 5vw; }
+    .portrait { width: 60vw; }
+    .about-statement { font-size: 9vw; }
+    .sec { padding: 4vw 0 6vw; }
+    .lists { row-gap: 6vw; }
+    .row { row-gap: 0; padding: 3vw 0; }
+    .cv { grid-column: auto; }
+  }
+</style>

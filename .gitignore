@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.astro/
+lessons/
+materials/
+.superpowers/
+# working notes stay local: the repo on GitHub is public
+docs/superpowers/
+DEMO.md
+.playwright-mcp/
+test-results/
+playwright-report/
+.DS_Store

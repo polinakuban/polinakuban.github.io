@@ -1,0 +1,99 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { nextProject, position } from '../../lib/collections';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((entry) => ({ params: { slug: entry.id }, props: { entry, projects } }));
+}
+
+interface Props {
+  entry: CollectionEntry<'projects'>;
+  projects: CollectionEntry<'projects'>[];
+}
+
+const { entry, projects } = Astro.props;
+const d = entry.data;
+const next = nextProject(projects, entry.id);
+const PLACEHOLDER_PHOTOS = 3;
+---
+<BaseLayout
+  title={`${d.title} — Polina Kuban`}
+  description={d.challenge.slice(0, 155)}
+  mode="coordination"
+  page="project"
+  header={{ variant: 'back', backHref: '/coordination', backLabel: 'All projects', center: position(projects, entry.id).label }}
+  ogImage={d.cover}
+>
+  <article class="project">
+    <h1>{d.title}</h1>
+    <dl class="meta grid3">
+      <div data-col="1"><dt class="label">Role</dt><dd>{d.role}</dd></div>
+      <div data-col="2"><dt class="label">Client</dt><dd>{d.client}</dd></div>
+      <div data-col="3" class="pair">
+        <div><dt class="label">Team</dt><dd>{d.team}</dd></div>
+        <div><dt class="label">Timeline</dt><dd>{d.timeline}</dd></div>
+      </div>
+    </dl>
+    <section class="sec grid3">
+      <h2 class="lbl label">Challenge</h2>
+      <p class="body span23">{d.challenge}</p>
+    </section>
+    <section class="sec grid3">
+      <h2 class="lbl label">What I did</h2>
+      <ul class="body span23 did">{d.whatIDid.map((item) => <li>{item}</li>)}</ul>
+    </section>
+    <section class="sec grid3">
+      <h2 class="lbl label">Result</h2>
+      <ul class="body span23 results">
+        {d.results.map((r) => <li><b>{r.value}</b><span>{r.label}</span></li>)}
+      </ul>
+    </section>
+    <div class="photos">
+      {d.photos.length
+        ? d.photos.map((p) => <Image src={p.src} alt={p.alt} widths={[600, 1000]} sizes="(max-width: 767px) 92vw, 40vw" />)
+        : Array.from({ length: PLACEHOLDER_PHOTOS }, () => <div class="block" style={`background:${d.color}`} />)}
+    </div>
+    <div class="next">
+      <span class="label">Next project</span>
+      <a href={next.href}>{next.title} →</a>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .project { padding: 1.5vw 3vw 6vw 2.5vw; font-size: clamp(15px, 1.35vw, 22px); line-height: 1.5; }
+  h1 { font-family: var(--serif); font-weight: 400; font-size: 7.4vw; line-height: .9; letter-spacing: -.01em; margin: 1vw 0 2.5vw; }
+  .meta { margin: 0; padding: 1.2vw 0 3vw; border-top: 1px solid var(--line); font-size: clamp(13px, 1.1vw, 18px); }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5vw; }
+  dt { margin-bottom: .3em; }
+  dd { margin: 0; }
+  .sec { padding: 1.6vw 0 2.6vw; border-top: 1px solid var(--line); }
+  .lbl { padding-top: .4em; }
+  .did { padding-left: 1.1em; }
+  .did li { margin-bottom: .35em; }
+  .results { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2vw; }
+  .results b { display: block; font-family: var(--serif); font-weight: 400; font-size: 5.4vw; line-height: 1; }
+  .results span { color: var(--mute); font-size: .8em; }
+  .photos { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1vw; margin: 1vw 0 4vw; }
+  /* height: auto beats the <img> height attribute, which would otherwise override aspect-ratio */
+  .photos > :global(*) { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; }
+  /* the wide photo takes its height from the row; min-height keeps its own size out of the row's sizing */
+  .photos > :first-child { aspect-ratio: auto; height: 0; min-height: 100%; }
+  .next { display: flex; justify-content: space-between; align-items: baseline; padding-top: 1.4vw; border-top: 1px solid var(--line); }
+  .next a { font-family: var(--serif); font-size: 5vw; line-height: 1; }
+
+  @media (max-width: 767px) {
+    .project { padding: 2vw 4vw 28vw; font-size: 16px; }
+    h1 { font-size: 13vw; margin: 2vw 0 6vw; }
+    .meta { gap: 4vw; padding: 4vw 0 6vw; }
+    .sec { padding: 4vw 0 6vw; }
+    .results b { font-size: 12vw; }
+    .photos { grid-template-columns: 1fr; gap: 2vw; }
+    .photos > :first-child { aspect-ratio: 4 / 3; height: auto; min-height: 0; }
+    .next { flex-direction: column; gap: 2vw; }
+    .next a { font-size: 9vw; }
+  }
+</style>

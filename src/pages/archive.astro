@@ -1,0 +1,59 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Lightbox from '../components/Lightbox.astro';
+import { sortByOrder } from '../lib/collections';
+
+const items = sortByOrder(await getCollection('archive'));
+---
+<BaseLayout
+  title="Archive — Polina Kuban"
+  description="Earlier work by Polina Kuban: posters, books, museums and student projects, 2019–2023."
+  mode="design"
+  page="archive"
+  header={{ variant: 'back', backHref: '/', backLabel: 'All works', center: 'Archive' }}
+>
+  <section class="archive">
+    <h1>Archive <em>2019–23</em></h1>
+    <p class="sub mute">Earlier work: posters, books, museums and student projects.</p>
+    <div class="grid">
+      {items.map((it) => {
+        const cover = it.data.cover ?? it.data.images[0]?.src;
+        const inner = (
+          <>
+            <span class="ph" style={`background:${it.data.color}`}>
+              {cover && <Image src={cover} alt="" widths={[400, 700]} sizes="(max-width: 767px) 46vw, 20vw" />}
+            </span>
+            <span class="cap"><span>{it.data.title}</span><span class="mute">{it.data.year}</span></span>
+          </>
+        );
+        return it.data.images.length
+          ? <button type="button" class="tile" data-lightbox={it.id}>{inner}</button>
+          : <div class="tile">{inner}</div>;
+      })}
+    </div>
+  </section>
+  <Lightbox slot="overlay" items={items} />
+</BaseLayout>
+
+<style>
+  .archive { padding: 1.5vw 3vw 6vw 2.5vw; }
+  h1 { font-family: var(--serif); font-weight: 400; font-size: 7.4vw; line-height: .88; margin: 1vw 0 1vw; }
+  .sub { font-size: clamp(14px, 1.3vw, 21px); margin-bottom: 2.6vw; max-width: 50vw; }
+  .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2.4vw 1.4vw; }
+  .tile { display: block; text-align: left; width: 100%; }
+  .ph { display: block; aspect-ratio: 4 / 5; overflow: hidden; transition: transform .5s var(--ease); }
+  .ph :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  button.tile:hover .ph { transform: scale(.97); }
+  .cap { display: flex; justify-content: space-between; gap: 1vw; margin-top: .7vw; font-size: clamp(13px, 1.05vw, 17px); }
+  .cap span:first-child { white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+
+  @media (max-width: 767px) {
+    .archive { padding: 2vw 4vw 28vw; }
+    h1 { font-size: 14vw; margin: 2vw 0 3vw; }
+    .sub { max-width: none; font-size: 15px; margin-bottom: 6vw; }
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6vw 3vw; }
+    .cap { margin-top: 2vw; font-size: 13px; }
+  }
+</style>

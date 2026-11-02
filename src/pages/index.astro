@@ -1,0 +1,63 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HomeStrip, { type StripItem } from '../components/HomeStrip.astro';
+import HomeTop from '../components/HomeTop.astro';
+import { homeStrip } from '../lib/collections';
+import { getSettings } from '../lib/site';
+
+const s = await getSettings();
+const featured = homeStrip(await getCollection('work'));
+const pad2 = (n: number) => String(n).padStart(2, '0');
+const items: StripItem[] = [
+  ...featured.map((w, i) => ({
+    id: w.id,
+    href: `/work/${w.id}`,
+    num: pad2(i + 1),
+    title: w.data.title,
+    type: w.data.category,
+    image: w.data.cover,
+    position: w.data.coverPosition,
+  })),
+  {
+    id: 'archive',
+    href: '/archive',
+    num: pad2(featured.length + 1),
+    title: 'Archive',
+    type: '2019–23',
+    image: s.archiveCover,
+    position: '50% 50%',
+  },
+];
+---
+<BaseLayout
+  title="Polina Kuban — Graphic Design"
+  description="Polina Kuban is a graphic designer in Budapest working on visual identities and packaging."
+  mode="design"
+  page="home"
+  header={{ variant: 'nav', role: s.designRole, active: 'design' }}
+  cursor
+>
+  <div class="home">
+    <HomeTop
+      statement={s.designStatement}
+      italic={s.designStatementItalic}
+      count={`Selected works, ${pad2(featured.length)}`}
+      clockLabel={s.clockLabel}
+    />
+    <HomeStrip items={items} />
+  </div>
+</BaseLayout>
+
+<style>
+  .home {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: calc(100vh - 5.5vw);
+    padding-bottom: 3vw;
+  }
+  @media (max-width: 767px) {
+    .home { min-height: 0; padding-bottom: 24vw; gap: 6vw; }
+  }
+</style>

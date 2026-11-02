@@ -1,0 +1,23 @@
+<button type="button" class="mobile-contact" data-contact-open>Contact me</button>
+
+<style>
+  .mobile-contact { display: none; }
+  @media (max-width: 767px) {
+    .mobile-contact {
+      display: block;
+      position: fixed;
+      left: 50%;
+      bottom: 5vw;
+      transform: translateX(-50%);
+      z-index: 40;
+      padding: .75em 1.8em;
+      border: 1px solid var(--fg);
+      border-radius: 999px;
+      background: var(--bg);
+      color: var(--fg);
+      font-size: 16px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, .12);
+      white-space: nowrap;
+    }
+  }
+</style>

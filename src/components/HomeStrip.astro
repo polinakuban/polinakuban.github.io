@@ -1,0 +1,100 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+export interface StripItem {
+  id: string;
+  href: string;
+  num: string;
+  title: string;
+  type: string;
+  image: ImageMetadata;
+  position: string;
+}
+
+interface Props {
+  items: StripItem[];
+}
+
+const { items } = Astro.props;
+---
+<div class="strip" data-strip>
+  {items.map((it, i) => (
+    <a data-case href={it.href} class:list={['item', { first: i === 0, 'is-active': i === 0 }]}>
+      <span class="cap">
+        <span class="num">{it.num}</span>
+        <span class="title">{it.title}</span>
+        <span class="type">{it.type}</span>
+      </span>
+      <span class="ph" transition:name={it.id === 'archive' ? undefined : `case-${it.id}`}>
+        <Image
+          src={it.image}
+          alt=""
+          widths={[480, 800, 1200]}
+          sizes="(max-width: 767px) 88vw, 40vw"
+          loading={i < 2 ? 'eager' : 'lazy'}
+          style={`object-position: ${it.position}`}
+        />
+      </span>
+    </a>
+  ))}
+</div>
+<script>
+  import '../scripts/strip';
+</script>
+
+<style>
+  .strip {
+    --h2: min(29vw, calc(100vh - 25vw - 6rem));
+    --h1: calc(var(--h2) * .48);
+    display: flex;
+    align-items: flex-end;
+    margin-left: 2.5vw;
+  }
+  .item { flex: 1 1 0; min-width: 0; display: block; }
+  .cap {
+    display: flex;
+    flex-direction: column;
+    padding: 0 1vw .6vw .3vw;
+    font-size: clamp(12px, 1vw, 17px);
+    line-height: 1.3;
+  }
+  .num { font-family: var(--serif); font-size: 2.6vw; line-height: 1; margin-bottom: .2em; }
+  .title, .type { white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+  .type { color: var(--mute); }
+  .ph { display: block; height: var(--h1); overflow: hidden; }
+  .ph :global(img) { width: 100%; height: 100%; object-fit: cover; }
+
+  @media (min-width: 768px) {
+    .item { transition: flex-grow .7s var(--ease); }
+    .ph { transition: height .7s var(--ease); }
+    .strip:not(:has(.item:hover, .item:focus-visible)) .item.first,
+    .item:hover,
+    .item:focus-visible { flex-grow: 2.6; }
+    .strip:not(:has(.item:hover, .item:focus-visible)) .item.first .ph,
+    .item:hover .ph,
+    .item:focus-visible .ph { height: var(--h2); }
+  }
+
+  @media (max-width: 767px) {
+    .strip {
+      margin: 0;
+      gap: 2vw;
+      padding: 0 24vw;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      min-height: 104vw;
+    }
+    .strip::-webkit-scrollbar { display: none; }
+    .item { flex: 0 0 52vw; scroll-snap-align: center; }
+    .cap { font-size: 12px; padding-bottom: 2vw; }
+    .num { font-size: 7vw; }
+    .ph { height: 52vw; transition: height .5s var(--ease); }
+    .item.is-active .ph { height: 88vw; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .item, .ph { transition: none !important; }
+  }
+</style>

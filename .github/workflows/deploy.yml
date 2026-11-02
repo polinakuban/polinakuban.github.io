@@ -1,0 +1,37 @@
+name: Deploy to GitHub Pages
+
+on:
+  # Every push to main publishes the site (Pages CMS saves land on main too)
+  push:
+    branches: [ main ]
+  # Allows a manual run from the Actions tab on GitHub
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout your repository using git
+        uses: actions/checkout@v7
+      # Third-party action pinned to a commit so a moved tag can't change what runs
+      - name: Install, build, and upload your site
+        uses: withastro/action@a8b97df764791eb61fbf3338ef713b0e61ae05c5 # v6.1.4
+
+  # Only this job can publish the page
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

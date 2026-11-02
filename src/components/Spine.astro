@@ -1,0 +1,55 @@
+---
+import type { Mode, PageKind } from '../lib/types';
+
+interface Props {
+  mode: Mode;
+  page: PageKind;
+}
+
+const { mode, page } = Astro.props;
+const home = mode === 'coordination' ? '/coordination' : '/';
+---
+<a class="spine" href={home} aria-label="Polina Kuban — home" transition:name="spine">
+  <span class="spine-text">POLINA<em>kuban</em></span>
+</a>
+<a class:list={['name-mobile', { 'is-home': page === 'home' }]} href={home} aria-label="Polina Kuban — home">
+  POLINA<em>kuban</em>
+</a>
+
+<style>
+  .spine {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: var(--spine-w);
+    border-right: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+  }
+  .spine-text,
+  .name-mobile {
+    font-weight: 500;
+    letter-spacing: -.04em;
+    line-height: .85;
+    white-space: nowrap;
+  }
+  .spine-text {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: min(10.6vw, 15.5vh);
+  }
+  .name-mobile { display: none; }
+
+  @media (max-width: 767px) {
+    .spine { display: none; }
+    .name-mobile {
+      display: block;
+      padding: 5vw 4vw 0;
+      font-size: 11vw;
+      /* the fallback serif is wider than Instrument Serif; never let it push the page sideways */
+      overflow: hidden;
+    }
+    .name-mobile.is-home { font-size: 17vw; }
+  }
+</style>

@@ -1,0 +1,19 @@
+portrait: ../../assets/about/portrait.jpg
+portraitAlt: Portrait of Polina Kuban in black and white
+statement: Creating visual identities, campaigns, and narratives
+statementItalic: with clarity, emotion, and intention.
+bio: >-
+  I’m a graphic designer based in Budapest, interested in building visual systems where concept, aesthetics,
+  and communication work together. Alongside design, I coordinate creative projects: from shoots and events
+  to print production.
+designer: [Brand identity, Packaging, Print & editorial, Iconography]
+coordinator: [Production & shoots, Vendor management, Timelines & budgets, Events & exhibitions]
+tools: [Illustrator, Photoshop, InDesign, Figma, Notion, Google Workspace]
+languages: [English, Russian]
+experience:
+  - { years: "2024", org: ROSECO, role: "Designer, 7 months" }
+  - { years: "2021–25", org: Zelënka, role: "Brand & packaging, freelance" }
+  - { years: "2026", org: Turning Visions, role: Exhibition identity }
+  - { years: "20XX", org: Budapest Metropolitan University, role: Education }
+cv: /cv/polina-kuban-cv.pdf
+todo: "languages, education years, tools and CV — confirm with Polina"

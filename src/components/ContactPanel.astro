@@ -1,0 +1,138 @@
+---
+import { getSettings } from '../lib/site';
+
+const s = await getSettings();
+const tel = s.phone && `tel:${s.phone.replace(/[^+\d]/g, '')}`;
+const behanceLabel = s.behance.replace(/^https?:\/\/(www\.)?/, '');
+---
+<div id="contact-panel" role="dialog" aria-modal="true" aria-labelledby="contact-title" inert>
+  <div class="backdrop" data-contact-close></div>
+  <div class="sheet">
+    <div class="top">
+      <span>Contact</span>
+      <button type="button" data-contact-close>(Close)</button>
+    </div>
+    <h2 id="contact-title">Let’s make<br /><em>something together.</em></h2>
+    <div class="rows">
+      <div class="row">
+        <small>Email</small>
+        <button type="button" class="val" data-copy={s.email}>
+          <span data-copy-text>{s.email}</span>
+        </button>
+        <span class="act"><span class="hint" aria-hidden="true">Copy</span><span class="status" data-copy-status role="status" hidden></span></span>
+      </div>
+      {s.phone && (
+        <div class="row"><small>Phone</small><a class="val" href={tel}>{s.phone}</a><span class="act" aria-hidden="true">Call</span></div>
+      )}
+      <div class="row">
+        <small>Behance</small><a class="val" href={s.behance} target="_blank" rel="noopener">{behanceLabel}</a><span class="act" aria-hidden="true">↗</span>
+      </div>
+      {s.linkedin && (
+        <div class="row">
+          <small>LinkedIn</small><a class="val" href={s.linkedin} target="_blank" rel="noopener">LinkedIn</a><span class="act" aria-hidden="true">↗</span>
+        </div>
+      )}
+    </div>
+    <div class="foot">
+      <span>Based in {s.city}</span>
+      <a class="privacy" href="/privacy">Privacy</a>
+    </div>
+  </div>
+</div>
+<script>
+  import '../scripts/contact';
+</script>
+
+<style>
+  /* A dark panel slides in from the right; the page stays visible, dimmed, behind it (spec §4.10) */
+  #contact-panel {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    visibility: hidden;
+    transition: visibility 0s .7s;
+  }
+  :global(html.contact-open) #contact-panel { visibility: visible; transition: visibility 0s 0s; }
+
+  .backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(17, 17, 17, .3);
+    opacity: 0;
+    transition: opacity .5s ease;
+  }
+  :global(html[data-mode='coordination']) .backdrop { background: rgba(0, 0, 0, .55); }
+  :global(html.contact-open) .backdrop { opacity: 1; }
+
+  .sheet {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: clamp(440px, 40vw, 760px);
+    display: flex;
+    flex-direction: column;
+    padding: 2.2vw 3vw 2.4vw;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--fg);
+    color: var(--bg);
+    font-size: clamp(14px, 1.35vw, 22px);
+    transform: translateX(101%);
+    transition: transform .7s cubic-bezier(.7, 0, .2, 1);
+  }
+  :global(html.contact-open) .sheet { transform: none; }
+
+  .top { display: flex; justify-content: space-between; font-size: clamp(13px, 1.05vw, 17px); }
+  .top button { text-decoration: underline; text-underline-offset: .3em; }
+  h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 4.2vw;
+    line-height: .95;
+    letter-spacing: -.01em;
+    margin: auto 0 2.4vw;
+  }
+
+  /* Each row is one big target, like the coordination list: the link or button stretches over it */
+  .row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 6.5em minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 1em;
+    padding: .8em 0;
+    border-top: 1px solid color-mix(in srgb, var(--bg) 22%, transparent);
+    transition: padding-left .35s var(--ease);
+  }
+  .row:last-child { border-bottom: 1px solid color-mix(in srgb, var(--bg) 22%, transparent); }
+  .row:hover { padding-left: .6em; }
+  .val { text-align: left; overflow-wrap: anywhere; }
+  .val::after { content: ''; position: absolute; inset: 0; }
+  small, .act, .foot { font-size: .7em; opacity: .6; }
+  .row:hover .act { opacity: 1; }
+  .status[hidden] { display: none; }
+  .act:has(.status:not([hidden])) .hint { display: none; }
+
+  .foot { display: flex; justify-content: space-between; gap: 1em; margin-top: 1.4vw; }
+  .privacy:hover { text-decoration: underline; text-underline-offset: .25em; }
+
+  @media (max-width: 767px) {
+    .sheet {
+      top: 6vh;
+      left: 0;
+      width: auto;
+      padding: 5vw 5vw 8vw;
+      font-size: 17px;
+      transform: translateY(101%);
+    }
+    h2 { font-size: 12vw; margin: auto 0 6vw; padding-top: 12vw; }
+    .row { grid-template-columns: minmax(0, 1fr) auto; gap: .2em 1em; padding: 4vw 0; }
+    .row small { grid-column: 1 / -1; }
+    .foot { margin-top: 5vw; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #contact-panel, .backdrop, .sheet { transition: none !important; }
+  }
+</style>

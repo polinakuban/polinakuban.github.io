@@ -1,0 +1,28 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CaseGallery from '../../components/CaseGallery.astro';
+import { nextWork, position } from '../../lib/collections';
+
+export async function getStaticPaths() {
+  const work = await getCollection('work');
+  return work.map((entry) => ({ params: { slug: entry.id }, props: { entry, work } }));
+}
+
+interface Props {
+  entry: CollectionEntry<'work'>;
+  work: CollectionEntry<'work'>[];
+}
+
+const { entry, work } = Astro.props;
+---
+<BaseLayout
+  title={`${entry.data.title} — Polina Kuban`}
+  description={entry.data.description.slice(0, 155)}
+  mode="design"
+  page="work"
+  header={{ variant: 'back', backHref: '/', backLabel: 'All works', center: position(work, entry.id).label }}
+  ogImage={entry.data.cover}
+>
+  <CaseGallery entry={entry} next={nextWork(work, entry.id)} />
+</BaseLayout>

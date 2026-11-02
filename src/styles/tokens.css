@@ -1,0 +1,23 @@
+:root {
+  --sans: 'Inter Tight', system-ui, sans-serif;
+  --serif: 'Instrument Serif', Georgia, serif;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --spine-w: 13vw;
+}
+
+html[data-mode='design'] {
+  --bg: #f4f3ef;
+  --fg: #111111;
+  --mute: #6e6c67;
+  --line: rgba(0, 0, 0, .14);
+}
+
+html[data-mode='coordination'] {
+  --bg: #121212;
+  --fg: #f1efe9;
+  --mute: #85837f;
+  --line: rgba(255, 255, 255, .14);
+}
+
+.mute { color: var(--mute); }
+.serif { font-family: var(--serif); font-weight: 400; }
