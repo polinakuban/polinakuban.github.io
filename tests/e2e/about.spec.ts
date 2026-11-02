@@ -62,9 +62,10 @@ test.describe('desktop', () => {
     expect(Math.abs(p.y + p.height - (s.y + s.height))).toBeLessThanOrEqual(2);
   });
 
-  test('CV downloads', async ({ page }) => {
+  test('no CV button until Polina uploads a CV', async ({ page }) => {
     await page.goto('/about');
-    await expect(page.locator('a.cv[href="/cv/polina-kuban-cv.pdf"][download]')).toContainText('Download CV');
+    await expect(page.locator('.exp .org').first()).toBeVisible();
+    await expect(page.locator('a.cv')).toHaveCount(0);
   });
 });
 

@@ -1,0 +1,233 @@
+# Admin for Polina at https://app.pagescms.org
+# Every save is a commit to main, which .github/workflows/deploy.yml publishes in about 2 minutes.
+# Field names must match src/content.config.ts; tests/unit/pages-cms.test.ts checks them.
+
+media:
+  - name: images
+    label: Фото
+    input: src/assets
+    # content files sit two folders below src/, so Astro wants paths like ../../assets/work/x.jpg
+    output: ../../assets
+    extensions: [jpg, jpeg, png, webp]
+    rename: safe
+  - name: cv
+    label: Резюме
+    input: public/cv
+    output: /cv
+    extensions: [pdf]
+    rename: safe
+
+settings:
+  # the Settings page edits this file; Polina doesn't need it
+  hide: true
+  content:
+    # keep keys the form doesn't know about instead of dropping them
+    merge: true
+
+content:
+  - name: projects
+    label: Кейсы координатора
+    type: collection
+    path: src/content/projects
+    format: yaml-frontmatter
+    filename: "{primary}.md"
+    view:
+      fields: [title, order, type]
+      primary: title
+      default: { sort: order, order: asc }
+    fields:
+      - { name: title, label: Название, type: string, required: true }
+      - { name: order, label: Место в списке, type: number, required: true, default: 10, description: "1 — первый в списке." }
+      - { name: type, label: Тип (колонка в списке), type: string, required: true, description: "Одно-два слова, например Workshop." }
+      - { name: scopeShort, label: Подпись (колонка в списке), type: string, required: true }
+      - { name: role, label: Role, type: string, required: true }
+      - { name: client, label: Client, type: string, description: "Пусто — поле не показывается на сайте." }
+      - { name: team, label: Team, type: string, description: "Пусто — поле не показывается на сайте." }
+      - { name: timeline, label: Timeline, type: string, description: "Пусто — поле не показывается на сайте." }
+      - { name: focus, label: Focus, type: text, required: true }
+      - name: whatIDid
+        label: What I did
+        type: string
+        list: true
+        description: "Каждый пункт отдельной строкой. Пусто — раздел не показывается."
+      - name: results
+        label: Result (крупные цифры)
+        type: object
+        list: { max: 3, collapsible: { collapsed: false, summary: "{value} {label}" } }
+        description: "До трёх цифр. Пусто — раздел не показывается."
+        fields:
+          - { name: value, label: Цифра, type: string, required: true, description: "Например 50+ или 3." }
+          - { name: label, label: Подпись, type: string, required: true }
+      - { name: keyLearning, label: Key learning, type: text, description: "Пусто — раздел не показывается." }
+      - name: cover
+        label: Обложка (картинка при наведении в списке)
+        type: image
+        options: { media: images, path: src/assets/projects }
+      - name: color
+        label: Цвет-заглушка
+        type: string
+        required: true
+        default: "#4a4a4a"
+        pattern: { regex: "^#[0-9a-fA-F]{6}$", message: "Цвет в формате #4a4f6e." }
+        description: "Видна, пока грузится фото."
+      - name: photos
+        label: Фото на странице кейса
+        type: object
+        list: { max: 3, collapsible: { collapsed: true, summary: "{alt}" } }
+        description: "Три фото: первое широкое, два поменьше."
+        fields:
+          - name: src
+            label: Фото
+            type: image
+            required: true
+            options: { media: images, path: src/assets/projects }
+          - { name: alt, label: Описание фото (для незрячих и поисковиков), type: string, required: true }
+          - name: position
+            label: Какую часть фото оставить при обрезке
+            type: string
+            default: "50% 50%"
+            description: "50% 50% — центр, 50% 20% — ближе к верху, 50% 80% — ближе к низу."
+      - { name: todo, label: Заметки (на сайте не видны), type: text }
+
+  - name: work
+    label: Кейсы дизайна
+    type: collection
+    path: src/content/work
+    format: yaml-frontmatter
+    filename: "{primary}.md"
+    view:
+      fields: [title, order, featured]
+      primary: title
+      default: { sort: order, order: asc }
+    fields:
+      - { name: title, label: Название, type: string, required: true }
+      - { name: order, label: Место в списке, type: number, required: true, default: 10, description: "1 — первый." }
+      - { name: featured, label: Показывать на главной, type: boolean, default: true }
+      - { name: category, label: Category, type: string, required: true }
+      - { name: years, label: Years, type: string, required: true }
+      - { name: role, label: Role, type: string, required: true }
+      - { name: client, label: Client, type: string, description: "Пусто — поле не показывается на сайте." }
+      - { name: scope, label: Scope, type: string, description: "Пусто — поле не показывается на сайте." }
+      - { name: description, label: Description, type: text, required: true, options: { maxlength: 600 } }
+      - name: cover
+        label: Обложка
+        type: image
+        required: true
+        options: { media: images, path: src/assets/work }
+      - name: coverPosition
+        label: Какую часть обложки оставить при обрезке
+        type: string
+        default: "50% 50%"
+        description: "50% 50% — центр, 50% 20% — ближе к верху."
+      - name: gallery
+        label: Галерея
+        type: object
+        list: { min: 1, collapsible: { collapsed: true, summary: "{alt}" } }
+        fields:
+          - name: src
+            label: Фото
+            type: image
+            required: true
+            options: { media: images, path: src/assets/work }
+          - { name: alt, label: Описание фото (для незрячих и поисковиков), type: string, required: true }
+      - { name: todo, label: Заметки (на сайте не видны), type: text }
+
+  - name: archive
+    label: Архив
+    type: collection
+    path: src/content/archive
+    format: yaml-frontmatter
+    filename: "{primary}.md"
+    view:
+      fields: [title, year, order]
+      primary: title
+      default: { sort: order, order: asc }
+    fields:
+      - { name: title, label: Название, type: string, required: true }
+      - { name: year, label: Год, type: string, required: true }
+      - { name: order, label: Место в списке, type: number, required: true, default: 10 }
+      - name: color
+        label: Цвет-заглушка
+        type: string
+        required: true
+        default: "#e3ddd2"
+        pattern: { regex: "^#[0-9a-fA-F]{6}$", message: "Цвет в формате #e3ddd2." }
+      - name: cover
+        label: Обложка
+        type: image
+        options: { media: images, path: src/assets/archive }
+      - name: images
+        label: Фото
+        type: object
+        list: { collapsible: { collapsed: true, summary: "{alt}" } }
+        fields:
+          - name: src
+            label: Фото
+            type: image
+            required: true
+            options: { media: images, path: src/assets/archive }
+          - { name: alt, label: Описание фото, type: string, required: true }
+
+  - name: about
+    label: Страница About
+    type: file
+    path: src/content/site/about.yaml
+    format: yaml
+    fields:
+      - name: portrait
+        label: Портрет
+        type: image
+        required: true
+        options: { media: images, path: src/assets/about }
+      - { name: portraitAlt, label: Описание портрета, type: string, required: true }
+      - { name: statement, label: Заголовок, type: string, required: true }
+      - { name: statementItalic, label: Заголовок, курсивная часть, type: string, required: true }
+      - { name: bio, label: Bio, type: text, required: true }
+      - { name: designer, label: Designer (навыки), type: string, list: true }
+      - { name: coordinator, label: Coordinator (навыки), type: string, list: true }
+      - { name: tools, label: Tools, type: string, list: true }
+      - { name: languages, label: Languages, type: string, list: true }
+      - name: experience
+        label: Experience
+        type: object
+        list: { collapsible: { collapsed: true, summary: "{years} {org}" } }
+        fields:
+          - { name: years, label: Годы, type: string, required: true }
+          - { name: org, label: Где, type: string, required: true }
+          - { name: role, label: Роль, type: string, required: true }
+      - name: cv
+        label: Резюме (PDF)
+        type: file
+        options: { media: cv, path: public/cv }
+        description: "Пока файла нет, кнопки Download CV на сайте нет."
+      - { name: todo, label: Заметки (на сайте не видны), type: text }
+
+  - name: settings
+    label: Настройки сайта
+    type: file
+    path: src/content/site/settings.yaml
+    format: yaml
+    fields:
+      - { name: email, label: Email, type: string, required: true }
+      - { name: phone, label: Телефон, type: string, description: "Пусто — телефон на сайте не показывается." }
+      - { name: behance, label: Behance, type: string, required: true }
+      - { name: linkedin, label: LinkedIn, type: string, description: "Полная ссылка. Пусто — не показывается." }
+      - { name: city, label: Город (внизу панели контактов), type: string, required: true }
+      - { name: clockLabel, label: Подпись у часов, type: string, required: true }
+      - { name: designStatement, label: Главная Design, заголовок, type: string, required: true }
+      - { name: designStatementItalic, label: Главная Design, курсивная часть, type: string, required: true }
+      - { name: coordinationStatement, label: Главная Coordination, заголовок, type: string, required: true }
+      - { name: coordinationStatementItalic, label: Главная Coordination, курсивная часть, type: string, required: true }
+      - { name: designRole, label: Подпись в шапке, Design, type: string, required: true }
+      - { name: coordinationRole, label: Подпись в шапке, Coordination, type: string, required: true }
+      - { name: aboutRole, label: Подпись в шапке, About, type: string, required: true }
+      - name: archiveCover
+        label: Обложка архива (и картинка для соцсетей)
+        type: image
+        required: true
+        options: { media: images, path: src/assets/site }
+      - name: indexable
+        label: Показывать сайт в поисковиках
+        type: boolean
+        default: true
+        description: "Выключено — Google и другие поисковики не добавляют сайт в выдачу."

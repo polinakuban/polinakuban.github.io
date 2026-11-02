@@ -1,6 +1,10 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
+import { maybe, orDefault } from './lib/schema';
+
+// Content is edited by Polina in Pages CMS (.pages.yml): optional fields go through
+// maybe()/orDefault(), so a field she clears never breaks the build.
 
 const work = defineCollection({
   loader: glob({ base: './src/content/work', pattern: '*.md' }),
@@ -8,17 +12,17 @@ const work = defineCollection({
     z.object({
       title: z.string(),
       order: z.number(),
-      featured: z.boolean().default(true),
+      featured: orDefault(z.boolean(), true),
       category: z.string(),
       years: z.string(),
       role: z.string(),
-      client: z.string().optional(),
-      scope: z.string().optional(),
+      client: maybe(z.string()),
+      scope: maybe(z.string()),
       description: z.string().max(600),
       cover: image(),
-      coverPosition: z.string().default('50% 50%'),
+      coverPosition: orDefault(z.string(), '50% 50%'),
       gallery: z.array(z.object({ src: image(), alt: z.string() })).min(1),
-      todo: z.string().optional(),
+      todo: maybe(z.string()),
     }),
 });
 
@@ -32,20 +36,20 @@ const projects = defineCollection({
       scopeShort: z.string(),
       role: z.string(),
       // Everything below `focus` is optional: the project page leaves out what isn't filled in
-      client: z.string().optional(),
-      team: z.string().optional(),
-      timeline: z.string().optional(),
+      client: maybe(z.string()),
+      team: maybe(z.string()),
+      timeline: maybe(z.string()),
       focus: z.string(),
-      whatIDid: z.array(z.string()).default([]),
-      results: z.array(z.object({ value: z.string(), label: z.string() })).max(3).default([]),
-      keyLearning: z.string().optional(),
-      cover: image().optional(),
+      whatIDid: orDefault(z.array(z.string()), []),
+      results: orDefault(z.array(z.object({ value: z.string(), label: z.string() })).max(3), []),
+      keyLearning: maybe(z.string()),
+      cover: maybe(image()),
       color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
-      photos: z
-        .array(z.object({ src: image(), alt: z.string(), position: z.string().default('50% 50%') }))
-        .max(3)
-        .default([]),
-      todo: z.string().optional(),
+      photos: orDefault(
+        z.array(z.object({ src: image(), alt: z.string(), position: orDefault(z.string(), '50% 50%') })).max(3),
+        [],
+      ),
+      todo: maybe(z.string()),
     }),
 });
 
@@ -57,8 +61,8 @@ const archive = defineCollection({
       year: z.string(),
       order: z.number(),
       color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
-      cover: image().optional(),
-      images: z.array(z.object({ src: image(), alt: z.string() })).default([]),
+      cover: maybe(image()),
+      images: orDefault(z.array(z.object({ src: image(), alt: z.string() })), []),
     }),
 });
 
@@ -67,9 +71,9 @@ const settings = defineCollection({
   schema: ({ image }) =>
     z.object({
       email: z.string().email(),
-      phone: z.string().optional(),
+      phone: maybe(z.string()),
       behance: z.string().url(),
-      linkedin: z.string().url().optional(),
+      linkedin: maybe(z.string().url()),
       city: z.string(),
       clockLabel: z.string(),
       designStatement: z.string(),
@@ -80,6 +84,8 @@ const settings = defineCollection({
       coordinationRole: z.string(),
       aboutRole: z.string(),
       archiveCover: image(),
+      // false adds a noindex tag to every page: search engines skip the site
+      indexable: orDefault(z.boolean(), true),
     }),
 });
 
@@ -97,8 +103,9 @@ const about = defineCollection({
       tools: z.array(z.string()),
       languages: z.array(z.string()),
       experience: z.array(z.object({ years: z.string(), org: z.string(), role: z.string() })),
-      cv: z.string(),
-      todo: z.string().optional(),
+      // no CV yet means no download button
+      cv: maybe(z.string()),
+      todo: maybe(z.string()),
     }),
 });
 

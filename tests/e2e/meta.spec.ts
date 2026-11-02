@@ -45,6 +45,13 @@ test('case og:image comes from the case cover', async ({ page }) => {
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /turning/);
 });
 
+test('search engines skip the site while settings say it is not indexable', async ({ page }) => {
+  for (const path of ['/', '/coordination/art-connections', '/about']) {
+    await page.goto(path);
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow');
+  }
+});
+
 test('sitemap and robots are built', async () => {
   expect(existsSync('dist/sitemap-index.xml')).toBe(true);
   expect(readFileSync('dist/robots.txt', 'utf8')).toContain('Sitemap:');
