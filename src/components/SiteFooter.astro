@@ -1,0 +1,35 @@
+---
+import type { PageKind } from '../lib/types';
+
+interface Props {
+  page: PageKind;
+}
+
+const { page } = Astro.props;
+---
+<footer class="site-foot label">
+  {page !== 'privacy' && <a href="/privacy">Privacy</a>}
+  <a class="credit" href="https://sashagrigori.github.io/" target="_blank" rel="noopener">Site by Aleksandra Zianchurina ↗</a>
+</footer>
+
+<style>
+  .site-foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: .5em 2em;
+    margin: 0 3vw 0 2.5vw;
+    padding: 1.2vw 0 1.6vw;
+    border-top: 1px solid var(--line);
+  }
+  .credit { margin-left: auto; }
+  a:hover { color: var(--fg); text-decoration: underline; text-underline-offset: .25em; }
+  /* design cases are one screen-high gallery on desktop: nothing below it to scroll to */
+  :global(html[data-page='work']) .site-foot { display: none; }
+
+  @media (max-width: 767px) {
+    /* the bottom padding keeps the floating Contact button clear of the footer */
+    .site-foot { margin: 0 4vw; padding: 4vw 0 24vw; font-size: 13px; }
+    :global(html[data-page='work']) .site-foot { display: flex; }
+  }
+</style>

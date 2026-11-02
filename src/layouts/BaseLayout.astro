@@ -13,6 +13,7 @@ import Header, { type Props as HeaderProps } from '../components/Header.astro';
 import ContactPanel from '../components/ContactPanel.astro';
 import MobileContact from '../components/MobileContact.astro';
 import ContactCursor from '../components/ContactCursor.astro';
+import SiteFooter from '../components/SiteFooter.astro';
 import { getSettings } from '../lib/site';
 import type { Mode, PageKind } from '../lib/types';
 
@@ -57,6 +58,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
       <Header {...header} />
       <main transition:animate={fade({ duration: '0.4s' })}>
         <slot />
+        {page !== 'home' && page !== '404' && <SiteFooter page={page} />}
       </main>
     </div>
     <!-- main is a view-transition stacking context, so fixed overlays must live outside it -->
