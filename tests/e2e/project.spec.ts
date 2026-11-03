@@ -8,8 +8,7 @@ test.describe('desktop', () => {
   test('dark mode, header and title', async ({ page }) => {
     await page.goto('/coordination/barka-workshop');
     await expect(page.locator('html')).toHaveAttribute('data-mode', 'coordination');
-    await expect(page.locator('header .back')).toHaveAttribute('href', '/coordination');
-    await expect(page.locator('header .center')).toHaveText('03 / 03');
+    await expect(page.locator('header .switch a[aria-current]')).toHaveText('Coordination');
     await expect(page.locator('.project h1')).toHaveText('Bárka Workshop');
   });
 

@@ -3,23 +3,18 @@ import type { PageKind } from '../lib/types';
 
 interface Props {
   page: PageKind;
-  /** Pages with the Design | Coordination header: on phones their About link moves up to the name row */
-  nav: boolean;
 }
 
-const { page, nav } = Astro.props;
+const { page } = Astro.props;
 ---
 <!-- the name is about Polina, so it leads to About -->
 <a class="spine" href="/about" aria-label="About Polina Kuban" transition:name="spine">
   <span class="spine-text">POLINA<em>kuban</em></span>
 </a>
+<!-- on phones the header's About link moves up here, beside the name -->
 <div class="top-mobile">
-  <a class:list={['name-mobile', { 'is-home': page === 'home' }]} href="/about" aria-label="About Polina Kuban">
-    POLINA<em>kuban</em>
-  </a>
-  {nav && (
-    <a class="mobile-about" href="/about" aria-current={page === 'about' ? 'page' : undefined}>About</a>
-  )}
+  <a class="name-mobile" href="/about" aria-label="About Polina Kuban">POLINA<em>kuban</em></a>
+  <a class="mobile-about" href="/about" aria-current={page === 'about' ? 'page' : undefined}>About</a>
 </div>
 
 <style>
@@ -58,14 +53,13 @@ const { page, nav } = Astro.props;
     }
     .name-mobile {
       min-width: 0;
-      font-size: 11vw;
+      /* the same on every page, as large as it can be with About still fitting beside it */
+      font-size: 13.5vw;
       /* the fallback serif is wider than Instrument Serif; never let it push the page sideways */
       overflow: hidden;
     }
-    /* as large as it can be with About still fitting beside it */
-    .name-mobile.is-home { font-size: 13.5vw; }
+    /* About looks the same on every page, its own included */
     .mobile-about { flex: none; font-size: 14px; color: var(--mute); transition: color .3s; }
-    .mobile-about:hover, .mobile-about[aria-current='page'] { color: var(--fg); }
-    .mobile-about[aria-current='page'] { font-weight: 500; }
+    .mobile-about:hover { color: var(--fg); }
   }
 </style>

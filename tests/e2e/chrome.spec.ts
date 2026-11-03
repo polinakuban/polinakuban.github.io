@@ -99,7 +99,7 @@ test('About sits just before Contact me', async ({ page, isMobile }) => {
 test('on phones About sits on the name row, clear of the switch', async ({ page, isMobile }) => {
   test.skip(!isMobile, 'mobile only');
   const vw = page.viewportSize()!.width;
-  for (const path of ['/', '/coordination', '/about']) {
+  for (const path of ['/', '/coordination', '/about', '/archive', '/work/zelenka', '/coordination/art-connections']) {
     await page.goto(path);
     await expect(page.locator('header a.about'), path).toBeHidden();
     const about = (await page.locator('.mobile-about').boundingBox())!;
@@ -116,11 +116,8 @@ test('on phones About sits on the name row, clear of the switch', async ({ page,
     expect(about.y + about.height, path).toBeLessThanOrEqual(name.bottom + 4);
     expect(about.y + about.height, path).toBeLessThan(sw.y);
   }
+  await page.goto('/about');
   await expect(page.locator('.mobile-about')).toHaveAttribute('aria-current', 'page');
-  for (const path of ['/archive', '/work/zelenka', '/coordination/art-connections']) {
-    await page.goto(path);
-    await expect(page.locator('.mobile-about'), path).toHaveCount(0);
-  }
 });
 
 test('desktop keeps About in the header', async ({ page, isMobile }) => {
@@ -137,16 +134,50 @@ test('mobile switch spans most of the width', async ({ page, isMobile }) => {
   expect(sw.width).toBeGreaterThan(page.viewportSize()!.width * 0.55);
 });
 
-test('case and project headers show back link and counter', async ({ page }) => {
-  await page.goto('/work/roseco-eco-boxes');
-  await expect(page.locator('header .back')).toHaveAttribute('href', '/');
-  await expect(page.locator('header .back')).toContainText('All works');
-  await expect(page.locator('header .center')).toHaveText('02 / 04');
-  await page.goto('/coordination/barka-workshop');
-  await expect(page.locator('header .back')).toHaveAttribute('href', '/coordination');
-  await expect(page.locator('header .center')).toHaveText('03 / 03');
-  await page.goto('/archive');
-  await expect(page.locator('header .center')).toHaveText('Archive');
+const PARTS = [
+  { path: '/', part: 'Design' },
+  { path: '/work/roseco-eco-boxes', part: 'Design' },
+  { path: '/archive', part: 'Design' },
+  { path: '/coordination', part: 'Coordination' },
+  { path: '/coordination/barka-workshop', part: 'Coordination' },
+  { path: '/about', part: null },
+  { path: '/privacy', part: null },
+  { path: '/does-not-exist', part: null },
+];
+
+test('every page has the same top panel, marking its part of the site', async ({ page, isMobile }) => {
+  let first: { name: number; switchY: number } | undefined;
+  for (const { path, part } of PARTS) {
+    await page.goto(path);
+    await expect(page.locator('header .switch a'), path).toHaveText(['Design', 'Coordination']);
+    await expect(page.locator(isMobile ? '.mobile-about' : 'header a.about'), path).toBeVisible();
+    if (part) {
+      await expect(page.locator('header .switch a[aria-current]'), path).toHaveText(part);
+      await expect(page.locator('header .switch .knob'), path).toBeVisible();
+    } else {
+      await expect(page.locator('header .switch a[aria-current]'), path).toHaveCount(0);
+      await expect(page.locator('header .switch .knob'), path).toBeHidden();
+    }
+    // same name size and switch position everywhere, so nothing jumps between pages
+    const now = {
+      name: await page.locator(isMobile ? '.name-mobile' : '.spine-text').evaluate((e) => parseFloat(getComputedStyle(e).fontSize)),
+      switchY: (await page.locator('header .switch').boundingBox())!.y,
+    };
+    first ??= now;
+    expect(now, path).toEqual(first);
+  }
+});
+
+test('About looks the same on every page, its own included', async ({ page, isMobile }) => {
+  const about = page.locator(isMobile ? '.mobile-about' : 'header a.about');
+  const style = () => about.evaluate((e) => {
+    const s = getComputedStyle(e);
+    return `${s.color} ${s.fontWeight} ${s.fontSize}`;
+  });
+  await page.goto('/');
+  const home = await style();
+  await page.goto('/about');
+  expect(await style()).toBe(home);
 });
 
 test('spine fits the viewport height', async ({ page, isMobile }) => {

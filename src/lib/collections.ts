@@ -11,14 +11,6 @@ export function homeStrip<T extends Ordered & { data: { featured: boolean } }>(w
   return sortByOrder(work.filter((w) => w.data.featured)).slice(0, HOME_STRIP_MAX);
 }
 
-const pad2 = (n: number) => String(n).padStart(2, '0');
-
-export function position<T extends Ordered>(items: T[], id: string) {
-  const sorted = sortByOrder(items);
-  const index = sorted.findIndex((i) => i.id === id);
-  return { index, total: sorted.length, label: `${pad2(index + 1)} / ${pad2(sorted.length)}` };
-}
-
 export function nextWork<T extends Ordered>(work: T[], id: string): Link {
   const sorted = sortByOrder(work);
   const next = sorted[sorted.findIndex((w) => w.id === id) + 1];

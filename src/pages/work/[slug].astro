@@ -2,7 +2,7 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CaseGallery from '../../components/CaseGallery.astro';
-import { nextWork, position } from '../../lib/collections';
+import { nextWork } from '../../lib/collections';
 
 export async function getStaticPaths() {
   const work = await getCollection('work');
@@ -21,7 +21,7 @@ const { entry, work } = Astro.props;
   description={entry.data.description.slice(0, 155)}
   mode="design"
   page="work"
-  header={{ variant: 'back', backHref: '/', backLabel: 'All works', center: position(work, entry.id).label }}
+  header={{ active: 'design' }}
   ogImage={entry.data.cover}
 >
   <CaseGallery entry={entry} next={nextWork(work, entry.id)} />

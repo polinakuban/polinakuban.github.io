@@ -2,9 +2,7 @@
 import { Image } from 'astro:assets';
 import { getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getSettings } from '../lib/site';
 
-const s = await getSettings();
 const about = await getEntry('about', 'about');
 if (!about) throw new Error('src/content/site/about.yaml is missing');
 const a = about.data;
@@ -14,7 +12,7 @@ const a = about.data;
   description="Polina Kuban is a graphic designer and creative project coordinator based in Budapest."
   mode="design"
   page="about"
-  header={{ variant: 'nav', role: s.aboutRole, active: 'about' }}
+  header={{ active: 'about' }}
   ogImage={a.portrait}
 >
   <article class="about">

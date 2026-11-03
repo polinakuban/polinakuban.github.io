@@ -55,7 +55,7 @@ const credit = page === 'home' ? 'desktop' : page === 'about' ? 'mobile' : undef
     <ClientRouter />
   </head>
   <body>
-    <Spine page={page} nav={header.variant === 'nav'} />
+    <Spine page={page} />
     <div class="page">
       <Header {...header} />
       <main transition:animate={fade({ duration: '0.4s' })}>

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { homeStrip, nextProject, nextWork, position, sortByOrder } from '../../src/lib/collections';
+import { homeStrip, nextProject, nextWork, sortByOrder } from '../../src/lib/collections';
 
 const work = [
   { id: 'turning-visions', data: { order: 4, title: 'Turning Visions', featured: true } },
@@ -23,10 +23,6 @@ describe('collections', () => {
     expect(homeStrip(work).map((w) => w.id)).toEqual(['zelenka', 'roseco-eco-boxes', 'turning-visions']);
     const nine = Array.from({ length: 9 }, (_, i) => ({ id: `c${i}`, data: { order: i, title: `C${i}`, featured: true } }));
     expect(homeStrip(nine)).toHaveLength(7);
-  });
-
-  test('position pads to two digits', () => {
-    expect(position(work, 'roseco-eco-boxes')).toEqual({ index: 1, total: 4, label: '02 / 04' });
   });
 
   test('nextWork goes to the next case and from the last to Archive', () => {

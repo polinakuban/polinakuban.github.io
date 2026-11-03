@@ -107,7 +107,7 @@ test.describe('desktop', () => {
     await page.locator('a[data-case]').first().click();
     await expect(page).toHaveURL(/\/work\/zelenka$/);
     await expect(html(page)).not.toHaveClass(/cursor-/);
-    await page.locator('header .back').click();
+    await page.locator('header .switch a', { hasText: 'Design' }).click();
     await expect(page).toHaveURL(/\/$/);
     const p = await emptySpot(page);
     await page.mouse.move(p.x, p.y, { steps: 5 });

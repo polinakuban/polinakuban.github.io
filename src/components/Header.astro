@@ -1,38 +1,35 @@
 ---
-export type Props =
-  | { variant: 'nav'; role: string; active: 'design' | 'coordination' | 'about' }
-  | { variant: 'back'; backHref: string; backLabel: string; center: string };
+import { getSettings } from '../lib/site';
 
-const props = Astro.props;
+// One top panel for every page; `active` is the part of the site the page belongs to
+export interface Props {
+  active?: 'design' | 'coordination' | 'about';
+}
+
+const { active } = Astro.props;
+const s = await getSettings();
+const role = active === 'design' ? s.designRole : active === 'coordination' ? s.coordinationRole : s.aboutRole;
 const parts = [
   { key: 'design', label: 'Design', href: '/' },
   { key: 'coordination', label: 'Coordination', href: '/coordination' },
 ] as const;
+const here = Astro.url.pathname.replace(/\/$/, '') || '/';
+// the part's own home is the current page; on its cases the part is only the current section
+const current = (p: (typeof parts)[number]) => (active !== p.key ? undefined : here === p.href ? 'page' : 'true');
 ---
 <header class="site-header">
-  {props.variant === 'nav' ? (
-    <>
-      <span class="left role">{props.role}</span>
-      <nav class="center switch" aria-label="Portfolio" data-active={props.active}>
-        {/* a shared element, so the browser slides it from one half to the other on navigation */}
-        <span class="knob" aria-hidden="true" transition:name="switch-knob"></span>
-        {parts.map((p) => (
-          <a href={p.href} aria-current={props.active === p.key ? 'page' : undefined} transition:name={`switch-${p.key}`}>
-            {p.label}
-          </a>
-        ))}
-      </nav>
-    </>
-  ) : (
-    <>
-      <a class="left back" href={props.backHref}>← {props.backLabel}</a>
-      <span class="center mute">{props.center}</span>
-    </>
-  )}
+  <span class="left role">{role}</span>
+  <nav class="center switch" aria-label="Portfolio" data-active={active === 'about' ? undefined : active}>
+    {/* a shared element, so the browser slides it from one half to the other on navigation */}
+    <span class="knob" aria-hidden="true" transition:name="switch-knob"></span>
+    {parts.map((p) => (
+      <a href={p.href} aria-current={current(p)} transition:name={`switch-${p.key}`}>
+        {p.label}
+      </a>
+    ))}
+  </nav>
   <div class="end">
-    {props.variant === 'nav' && (
-      <a class="about" href="/about" aria-current={props.active === 'about' ? 'page' : undefined}>About</a>
-    )}
+    <a class="about" href="/about" aria-current={active === 'about' ? 'page' : undefined}>About</a>
     <button class="pill" type="button" data-contact-open>Contact me</button>
   </div>
 </header>
@@ -73,7 +70,8 @@ const parts = [
     background: var(--fg);
   }
   .switch[data-active='coordination'] .knob { transform: translateX(100%); }
-  .switch[data-active='about'] .knob { display: none; }
+  /* About, Privacy and 404 belong to neither part */
+  .switch:not([data-active]) .knob { display: none; }
   .switch a {
     position: relative;
     padding: .3em 1.2em;
@@ -82,12 +80,12 @@ const parts = [
     transition: color .3s;
   }
   .switch a:hover { color: var(--fg); }
-  .switch a[aria-current='page'] { color: var(--bg); }
+  .switch a[aria-current] { color: var(--bg); }
 
   .end { justify-self: end; display: flex; align-items: center; gap: 1.8vw; }
+  /* About looks the same on every page, its own included */
   .about { color: var(--mute); transition: color .3s; }
-  .about:hover, .about[aria-current='page'] { color: var(--fg); }
-  .about[aria-current='page'] { font-weight: 500; }
+  .about:hover { color: var(--fg); }
   .pill {
     border: 1px solid var(--fg);
     border-radius: 999px;
@@ -98,13 +96,12 @@ const parts = [
 
   @media (max-width: 767px) {
     .site-header {
-      grid-template-columns: 1fr auto;
+      grid-template-columns: 1fr;
       padding: 4vw 4vw 3vw;
       font-size: 14px;
     }
-    .role { grid-column: 1 / -1; grid-row: 2; color: var(--mute); }
-    .center { justify-self: end; }
-    .switch { grid-column: 1 / -1; justify-self: stretch; }
+    .role { grid-row: 2; color: var(--mute); }
+    .switch { justify-self: stretch; }
     /* About moves up to the name row (Spine) and Contact me becomes the floating button */
     .end { display: none; }
   }

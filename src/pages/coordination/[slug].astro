@@ -2,7 +2,7 @@
 import { Image } from 'astro:assets';
 import { getCollection, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { nextProject, position } from '../../lib/collections';
+import { nextProject } from '../../lib/collections';
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects');
@@ -24,7 +24,7 @@ const PLACEHOLDER_PHOTOS = 3;
   description={d.focus.slice(0, 155)}
   mode="coordination"
   page="project"
-  header={{ variant: 'back', backHref: '/coordination', backLabel: 'All projects', center: position(projects, entry.id).label }}
+  header={{ active: 'coordination' }}
   ogImage={d.cover}
 >
   <article class="project">
