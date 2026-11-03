@@ -110,7 +110,9 @@ const meta = [
     /* same width for every card; the height follows the image so wide work is never cut in half */
     figure { width: 80vw; height: auto; scroll-snap-align: start; }
     figure :global(img) { width: 100%; height: auto; max-width: none; max-height: 100vw; }
-    .next a { font-size: 9vw; }
+    /* a snap card of its own, or the snap stops at the last image and cuts the next-case link off */
+    .next { width: 80vw; gap: 2vw; padding: 0; scroll-snap-align: start; }
+    .next a { font-size: 9vw; white-space: normal; }
     .hint, .progress { position: static; display: inline-block; margin: 3vw 4vw 0; }
     .progress { float: right; }
   }

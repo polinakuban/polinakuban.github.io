@@ -153,7 +153,7 @@ test('phone row stays hidden while settings have no phone, Behance opens externa
 
 test('contact panel works after navigating away and back', async ({ page, isMobile }) => {
   await page.goto('/');
-  await page.locator('header a', { hasText: 'About' }).click();
+  await page.locator(isMobile ? '.mobile-about' : 'header a.about').click();
   await expect(page).toHaveURL(/\/about$/);
   await page.locator('nav a', { hasText: 'Design' }).click();
   await expect(page).toHaveURL(/\/$/);

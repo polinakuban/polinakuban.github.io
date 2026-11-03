@@ -1,44 +1,83 @@
 import { test, expect } from '@playwright/test';
 
-const CREDIT = 'a[href="https://sashagrigori.github.io/"]';
+const CREDIT = '.site-foot a[href="https://sashagrigori.github.io/"]';
+const HOMES = ['/', '/coordination'];
+const OTHERS = ['/archive', '/privacy', '/work/zelenka', '/coordination/art-connections', '/no-such-page'];
 
-test('scrolling pages end with Privacy and the site credit', async ({ page }) => {
-  for (const path of ['/coordination/art-connections', '/about', '/archive']) {
+async function expectCredit(page: import('@playwright/test').Page, path: string) {
+  await expect(page.locator(CREDIT), path).toBeVisible();
+  await expect(page.locator(CREDIT), path).toHaveText(/^Site by Aleksandra Zianchurina/);
+  await expect(page.locator(CREDIT), path).toHaveAttribute('target', '_blank');
+}
+
+test('on desktop the credit is on the two home pages only', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'desktop only');
+  for (const path of HOMES) {
     await page.goto(path);
-    const foot = page.locator('.site-foot');
-    await expect(foot.locator('a[href="/privacy"]')).toHaveText('Privacy');
-    await expect(foot.locator(CREDIT)).toHaveText(/^Site by Aleksandra Zianchurina/);
-    await expect(foot.locator(CREDIT)).toHaveAttribute('target', '_blank');
+    await expectCredit(page, path);
+  }
+  for (const path of ['/about', ...OTHERS]) {
+    await page.goto(path);
+    await expect(page.locator(CREDIT), path).toBeHidden();
   }
 });
 
-test('the privacy page footer does not link to itself', async ({ page }) => {
-  await page.goto('/privacy');
-  await expect(page.locator('.site-foot a[href="/privacy"]')).toHaveCount(0);
-  await expect(page.locator(`.site-foot ${CREDIT}`)).toBeVisible();
-});
-
-test('home pages have no footer', async ({ page }) => {
-  for (const path of ['/', '/coordination']) {
-    await page.goto(path);
-    await expect(page.locator('.site-foot')).toHaveCount(0);
-  }
-});
-
-test('design cases show the footer only where they scroll down (phones)', async ({ page, isMobile }) => {
-  await page.goto('/work/zelenka');
-  if (isMobile) await expect(page.locator('.site-foot')).toBeVisible();
-  else await expect(page.locator('.site-foot')).toBeHidden();
-});
-
-test('on phones the Contact button does not cover the footer', async ({ page, isMobile }) => {
+test('on phones the credit is on About only', async ({ page, isMobile }) => {
   test.skip(!isMobile, 'mobile only');
-  for (const path of ['/about', '/coordination/living-tradition', '/work/zelenka']) {
+  await page.goto('/about');
+  await expectCredit(page, '/about');
+  for (const path of [...HOMES, ...OTHERS]) {
+    await page.goto(path);
+    await expect(page.locator(CREDIT), path).toBeHidden();
+  }
+});
+
+test('on desktop the credit sits in the first screen, under the works', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'desktop only');
+  for (const size of [
+    { width: 1024, height: 768 },
+    { width: 1280, height: 800 },
+    { width: 1440, height: 900 },
+    { width: 1536, height: 864 },
+    { width: 1920, height: 1080 },
+  ]) {
+    await page.setViewportSize(size);
+    for (const path of HOMES) {
+      await page.goto(path);
+      const at = `${path} ${size.width}×${size.height}`;
+      const credit = (await page.locator(CREDIT).boundingBox())!;
+      const works = (await page.locator('[data-strip], [data-project-list]').boundingBox())!;
+      expect(credit.y, at).toBeGreaterThanOrEqual(works.y + works.height);
+      expect(credit.y + credit.height, at).toBeLessThanOrEqual(size.height);
+      // the credit must not make the one-screen home scroll
+      expect(await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight), at).toBeLessThanOrEqual(0);
+    }
+  }
+});
+
+test('on phones About ends with the Contact button and the credit under it', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'mobile only');
+  const vh = page.viewportSize()!.height;
+  await page.goto('/about');
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await page.waitForTimeout(300);
+  const content = (await page.locator('article.about').boundingBox())!;
+  const button = (await page.locator('.mobile-contact').boundingBox())!;
+  const credit = (await page.locator(CREDIT).boundingBox())!;
+  expect(button.y).toBeGreaterThanOrEqual(content.y + content.height);
+  expect(credit.y).toBeGreaterThanOrEqual(button.y + button.height);
+  expect(credit.y + credit.height).toBeLessThanOrEqual(vh);
+  expect(Math.abs(credit.x + credit.width / 2 - (button.x + button.width / 2))).toBeLessThan(2);
+});
+
+test('on phones the home pages keep the Contact button clear of the works', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'mobile only');
+  for (const path of HOMES) {
     await page.goto(path);
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
     await page.waitForTimeout(300);
-    const credit = (await page.locator(`.site-foot ${CREDIT}`).boundingBox())!;
+    const works = (await page.locator('[data-strip], [data-project-list] a:last-child').last().boundingBox())!;
     const button = (await page.locator('.mobile-contact').boundingBox())!;
-    expect(credit.y + credit.height, path).toBeLessThanOrEqual(button.y);
+    expect(works.y + works.height, path).toBeLessThanOrEqual(button.y);
   }
 });

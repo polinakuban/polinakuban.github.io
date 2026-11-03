@@ -96,6 +96,40 @@ test('About sits just before Contact me', async ({ page, isMobile }) => {
   expect(Math.abs(about.y + about.height / 2 - (pill.y + pill.height / 2))).toBeLessThan(3);
 });
 
+test('on phones About sits on the name row, clear of the switch', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'mobile only');
+  const vw = page.viewportSize()!.width;
+  for (const path of ['/', '/coordination', '/about']) {
+    await page.goto(path);
+    await expect(page.locator('header a.about'), path).toBeHidden();
+    const about = (await page.locator('.mobile-about').boundingBox())!;
+    const name = await page.locator('.name-mobile').evaluate((el) => {
+      const r = document.createRange();
+      r.selectNodeContents(el);
+      const b = r.getBoundingClientRect();
+      return { right: b.right, top: b.top, bottom: b.bottom };
+    });
+    const sw = (await page.locator('header .switch').boundingBox())!;
+    expect(about.x, path).toBeGreaterThan(name.right + 8);
+    expect(about.x + about.width, path).toBeLessThanOrEqual(vw - 10);
+    expect(about.y, path).toBeGreaterThanOrEqual(name.top);
+    expect(about.y + about.height, path).toBeLessThanOrEqual(name.bottom + 4);
+    expect(about.y + about.height, path).toBeLessThan(sw.y);
+  }
+  await expect(page.locator('.mobile-about')).toHaveAttribute('aria-current', 'page');
+  for (const path of ['/archive', '/work/zelenka', '/coordination/art-connections']) {
+    await page.goto(path);
+    await expect(page.locator('.mobile-about'), path).toHaveCount(0);
+  }
+});
+
+test('desktop keeps About in the header', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'desktop only');
+  await page.goto('/');
+  await expect(page.locator('header a.about')).toBeVisible();
+  await expect(page.locator('.mobile-about')).toBeHidden();
+});
+
 test('mobile switch spans most of the width', async ({ page, isMobile }) => {
   test.skip(!isMobile, 'mobile only');
   await page.goto('/');
@@ -124,10 +158,13 @@ test('spine fits the viewport height', async ({ page, isMobile }) => {
   expect(box!.y).toBeGreaterThanOrEqual(0);
 });
 
-test('spine links to the home of the current mode', async ({ page, isMobile }) => {
-  test.skip(isMobile, 'desktop only');
-  await page.goto('/coordination/barka-workshop');
-  await expect(page.locator('.spine')).toHaveAttribute('href', '/coordination');
-  await page.goto('/about');
-  await expect(page.locator('.spine')).toHaveAttribute('href', '/');
+test('the name leads to About from every page', async ({ page, isMobile }) => {
+  const name = page.locator(isMobile ? '.name-mobile' : '.spine');
+  for (const path of ['/', '/coordination', '/coordination/barka-workshop', '/work/zelenka', '/archive']) {
+    await page.goto(path);
+    await expect(name, path).toHaveAttribute('href', '/about');
+  }
+  await page.goto('/coordination');
+  await name.click();
+  await expect(page).toHaveURL(/\/about$/);
 });

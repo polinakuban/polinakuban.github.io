@@ -1,35 +1,30 @@
 ---
-import type { PageKind } from '../lib/types';
-
 interface Props {
-  page: PageKind;
+  /** The home pages show the credit on desktop, About shows it on phones */
+  on: 'desktop' | 'mobile';
 }
 
-const { page } = Astro.props;
+const { on } = Astro.props;
 ---
-<footer class="site-foot label">
-  {page !== 'privacy' && <a href="/privacy">Privacy</a>}
-  <a class="credit" href="https://sashagrigori.github.io/" target="_blank" rel="noopener">Site by Aleksandra Zianchurina ↗</a>
+<footer class:list={['site-foot label', on]}>
+  <a href="https://sashagrigori.github.io/" target="_blank" rel="noopener">Site by Aleksandra Zianchurina ↗</a>
 </footer>
 
 <style>
+  /* a band at the foot of the one-screen home layout, under the works */
   .site-foot {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: .5em 2em;
-    margin: 0 3vw 0 2.5vw;
-    padding: 1.2vw 0 1.6vw;
-    border-top: 1px solid var(--line);
+    align-items: center;
+    justify-content: flex-end;
+    height: 3vw;
+    padding: 0 3vw 0 2.5vw;
   }
-  .credit { margin-left: auto; }
+  .site-foot.mobile { display: none; }
   a:hover { color: var(--fg); text-decoration: underline; text-underline-offset: .25em; }
-  /* design cases are one screen-high gallery on desktop: nothing below it to scroll to */
-  :global(html[data-page='work']) .site-foot { display: none; }
 
   @media (max-width: 767px) {
-    /* the bottom padding keeps the floating Contact button clear of the footer */
-    .site-foot { margin: 0 4vw; padding: 4vw 0 24vw; font-size: 13px; }
-    :global(html[data-page='work']) .site-foot { display: flex; }
+    .site-foot.desktop { display: none; }
+    /* centred under the Contact button, which ends the page on phones */
+    .site-foot.mobile { display: flex; justify-content: center; height: auto; padding: 4vw 4vw 6vw; font-size: 13px; }
   }
 </style>

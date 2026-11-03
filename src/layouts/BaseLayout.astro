@@ -33,6 +33,8 @@ const settings = await getSettings();
 const og = await getImage({ src: ogImage ?? settings.archiveCover, width: 1200, format: 'jpg' });
 const ogUrl = new URL(og.src, Astro.site).href;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
+// the site credit: under the works on the home pages for desktop, at the end of About for phones
+const credit = page === 'home' ? 'desktop' : page === 'about' ? 'mobile' : undefined;
 ---
 <!doctype html>
 <html lang="en" data-mode={mode} data-page={page}>
@@ -53,24 +55,29 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
     <ClientRouter />
   </head>
   <body>
-    <Spine mode={mode} page={page} />
+    <Spine page={page} nav={header.variant === 'nav'} />
     <div class="page">
       <Header {...header} />
       <main transition:animate={fade({ duration: '0.4s' })}>
         <slot />
-        {page !== 'home' && page !== '404' && <SiteFooter page={page} />}
       </main>
+      <!-- with the credit at its end, the phone Contact button rides in the page flow, so the page ends with it above the credit -->
+      {credit === 'mobile' && <MobileContact inFlow />}
+      {credit && <SiteFooter on={credit} />}
     </div>
     <!-- main is a view-transition stacking context, so fixed overlays must live outside it -->
     <slot name="overlay" />
-    <MobileContact />
+    {credit !== 'mobile' && <MobileContact />}
     {cursor && <ContactCursor />}
     <ContactPanel />
   </body>
 </html>
 
 <style>
-  .page { margin-left: var(--spine-w); min-height: 100vh; }
+  /* main takes whatever height the header and the home credit leave, so a home page is exactly one screen */
+  .page { display: flex; flex-direction: column; margin-left: var(--spine-w); min-height: 100vh; }
+  main { flex: 1 0 auto; }
+  :global(html[data-page='home']) main { display: flex; flex-direction: column; }
   @media (max-width: 767px) {
     .page { margin-left: 0; }
   }

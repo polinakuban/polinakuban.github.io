@@ -127,3 +127,18 @@ test('mobile stacks text above a swipe gallery', async ({ page, isMobile }) => {
   const titleLeft = title.x;
   expect(Math.abs(left - titleLeft)).toBeLessThan(2);
 });
+
+test('mobile: swiping to the end shows the next-case link whole', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'mobile only');
+  const vw = page.viewportSize()!.width;
+  for (const path of ['/work/zelenka', '/work/turning-visions']) {
+    await page.goto(path);
+    await page.locator('[data-track]').evaluate((t) => t.scrollTo({ left: t.scrollWidth }));
+    await page.waitForTimeout(600);
+    for (const sel of ['.next span', '.next a']) {
+      const box = (await page.locator(sel).boundingBox())!;
+      expect(box.x, `${path} ${sel}`).toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width, `${path} ${sel}`).toBeLessThanOrEqual(vw);
+    }
+  }
+});

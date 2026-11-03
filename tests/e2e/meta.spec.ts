@@ -11,7 +11,7 @@ test('mode switch fades to the dark palette and keeps the spine', async ({ page,
   await page.waitForTimeout(1000);
   expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe('rgb(18, 18, 18)');
   const spine = page.locator('.spine');
-  await expect(spine).toHaveAttribute('href', '/coordination');
+  await expect(spine).toBeVisible();
   expect(await spine.evaluate((e) => getComputedStyle(e).viewTransitionName)).toBe('spine');
 });
 

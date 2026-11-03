@@ -80,7 +80,8 @@ const { items } = Astro.props;
     .strip {
       margin: 0;
       gap: 2vw;
-      padding: 0 24vw;
+      /* the first card starts at the text margin; the right padding lets the last one reach the centre */
+      padding: 0 24vw 0 4vw;
       overflow-x: auto;
       scroll-snap-type: x mandatory;
       scrollbar-width: none;

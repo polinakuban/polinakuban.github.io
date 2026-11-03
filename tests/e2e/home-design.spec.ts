@@ -89,6 +89,14 @@ test.describe('desktop', () => {
   });
 });
 
+test('mobile strip starts at the page margin', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'mobile only');
+  await page.goto('/');
+  const first = (await page.locator('a[data-case]').first().boundingBox())!;
+  const statement = (await page.locator('.statement').boundingBox())!;
+  expect(Math.abs(first.x - statement.x)).toBeLessThan(2);
+});
+
 test('mobile swipe strip centres and grows', async ({ page, isMobile }) => {
   test.skip(!isMobile, 'mobile only');
   await page.goto('/');

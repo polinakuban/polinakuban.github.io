@@ -1,4 +1,12 @@
-<button type="button" class="mobile-contact" data-contact-open>Contact me</button>
+---
+interface Props {
+  /** Ride in the page flow instead of floating fixed: the page then ends with the button */
+  inFlow?: boolean;
+}
+
+const { inFlow = false } = Astro.props;
+---
+<button type="button" class:list={['mobile-contact', { 'in-flow': inFlow }]} data-contact-open>Contact me</button>
 
 <style>
   .mobile-contact { display: none; }
@@ -18,6 +26,14 @@
       font-size: 16px;
       box-shadow: 0 4px 18px rgba(0, 0, 0, .12);
       white-space: nowrap;
+    }
+    /* sticky floats it like the fixed one while you scroll, then it settles at the end of the page */
+    .in-flow {
+      position: sticky;
+      left: auto;
+      align-self: center;
+      transform: none;
+      margin-top: 8vw;
     }
   }
 </style>

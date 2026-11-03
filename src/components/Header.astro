@@ -29,7 +29,7 @@ const parts = [
       <span class="center mute">{props.center}</span>
     </>
   )}
-  <div class:list={['end', { solo: props.variant !== 'nav' }]}>
+  <div class="end">
     {props.variant === 'nav' && (
       <a class="about" href="/about" aria-current={props.active === 'about' ? 'page' : undefined}>About</a>
     )}
@@ -104,9 +104,8 @@ const parts = [
     }
     .role { grid-column: 1 / -1; grid-row: 2; color: var(--mute); }
     .center { justify-self: end; }
-    .switch { justify-self: stretch; }
-    .pill { display: none; }
-    /* with the pill hidden a lone .end would only add an empty grid cell */
-    .end.solo { display: none; }
+    .switch { grid-column: 1 / -1; justify-self: stretch; }
+    /* About moves up to the name row (Spine) and Contact me becomes the floating button */
+    .end { display: none; }
   }
 </style>
